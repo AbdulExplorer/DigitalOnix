@@ -1,7 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 /* ==========================================================================
-   DIGITALONIX THEME SYSTEM (5 LIVE THEMES)
+   DIGITALONIX THEME SYSTEM (5 LIVE THEMES WITH SEMANTIC TOKENS)
    Applied via [data-theme="<id>"] on <html>
    ========================================================================== */
 
@@ -26,10 +24,10 @@ body,
 .form-input,
 .form-select,
 .form-textarea {
-  transition: background-color 300ms ease,
-              color 300ms ease,
-              border-color 300ms ease,
-              box-shadow 300ms ease;
+  transition: background-color 250ms ease,
+              color 250ms ease,
+              border-color 250ms ease,
+              box-shadow 250ms ease;
 }
 
 /* ==========================================================================
@@ -39,35 +37,44 @@ body,
    ========================================================================== */
 :root,
 [data-theme="modern"] {
-  --background: #0D0D0F;
-  --surface: #15131A;
-  --surface-hover: #201629;
-  --surface-card: #141219;
-  --surface-elevated: #1B1822;
+  --color-bg: #0D0D0F;
+  --color-bg-primary: #0D0D0F;
+  --color-bg-secondary: #15131A;
+  --color-card: #141219;
+  --color-card-elevated: #1B1822;
 
-  --brand-purple: #8B3DFF;
-  --brand-purple-dark: #5B21B6;
-  --brand-purple-light: #A364FF;
+  --color-text: #FFFFFF;
+  --color-text-secondary: #A5A5B0;
+  --color-text-muted: #72707D;
+
+  --color-primary: #8B3DFF;
+  --color-secondary: #5B21B6;
+  --color-accent: #A364FF;
+
+  --color-button-bg: #8B3DFF;
+  --color-button-text: #FFFFFF;
+  --color-button-secondary-bg: #1B1822;
+  --color-button-secondary-text: #FFFFFF;
+  --color-button-hover: #7A28F5;
+
+  --color-border: #29252F;
+  --color-input-bg: #141219;
+  --color-input-text: #FFFFFF;
+  --color-input-border: #29252F;
+
+  --color-navbar: rgba(13, 13, 15, 0.88);
+  --color-footer: #0A0A0C;
+  --color-link: #A5A5B0;
+  --color-link-hover: #FFFFFF;
+
+  --color-badge-bg: #1B1822;
+  --color-badge-text: #A364FF;
+  --color-focus-ring: #8B3DFF;
+
   --brand-purple-glow: rgba(139, 61, 255, 0.22);
-  --brand-purple-soft: rgba(139, 61, 255, 0.12);
-
-  --text-primary: #FFFFFF;
-  --text-secondary: #A5A5B0;
-  --text-muted: #72707D;
-
-  --border: #29252F;
-  --border-focus: #8B3DFF;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-
-  --header-bg: rgba(13, 13, 15, 0.88);
-  --footer-bg: #0A0A0C;
-
   --gradient-brand: linear-gradient(135deg, #8B3DFF 0%, #5B21B6 100%);
   --gradient-glow: radial-gradient(circle at 50% 20%, rgba(139, 61, 255, 0.16) 0%, transparent 60%);
   --gradient-headline-accent: linear-gradient(135deg, #C285FF 0%, #8B3DFF 60%, #FFFFFF 100%);
-
-  --font-family-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 35px rgba(139, 61, 255, 0.25);
@@ -79,63 +86,47 @@ body,
    Aesthetic: Oversized typography, energetic layouts, selective lime accents
    ========================================================================== */
 [data-theme="bold"] {
-  --background: #111111;
-  --surface: #191919;
-  --surface-hover: #242424;
-  --surface-card: #161616;
-  --surface-elevated: #222222;
+  --color-bg: #111111;
+  --color-bg-primary: #111111;
+  --color-bg-secondary: #191919;
+  --color-card: #171717;
+  --color-card-elevated: #222222;
 
-  --brand-purple: #A855F7;
-  --brand-purple-dark: #7E22CE;
-  --brand-purple-light: #C084FC;
-  --brand-accent: #C8FF3D;
+  --color-text: #FAFAFA;
+  --color-text-secondary: #B5B5B5;
+  --color-text-muted: #7A7A7A;
+
+  --color-primary: #A855F7;
+  --color-secondary: #7E22CE;
+  --color-accent: #C8FF3D;
+
+  --color-button-bg: #A855F7;
+  --color-button-text: #FAFAFA;
+  --color-button-secondary-bg: #1F1F1F;
+  --color-button-secondary-text: #FAFAFA;
+  --color-button-hover: #9333EA;
+
+  --color-border: #303030;
+  --color-input-bg: #181818;
+  --color-input-text: #FAFAFA;
+  --color-input-border: #303030;
+
+  --color-navbar: rgba(17, 17, 17, 0.90);
+  --color-footer: #0B0B0B;
+  --color-link: #B5B5B5;
+  --color-link-hover: #C8FF3D;
+
+  --color-badge-bg: rgba(200, 255, 61, 0.12);
+  --color-badge-text: #C8FF3D;
+  --color-focus-ring: #C8FF3D;
+
   --brand-purple-glow: rgba(168, 85, 247, 0.25);
-  --brand-purple-soft: rgba(168, 85, 247, 0.14);
-
-  --text-primary: #FAFAFA;
-  --text-secondary: #B5B5B5;
-  --text-muted: #7A7A7A;
-
-  --border: #303030;
-  --border-focus: #A855F7;
-  --border-subtle: rgba(255, 255, 255, 0.1);
-
-  --header-bg: rgba(17, 17, 17, 0.90);
-  --footer-bg: #0B0B0B;
-
   --gradient-brand: linear-gradient(135deg, #A855F7 0%, #7E22CE 100%);
   --gradient-glow: radial-gradient(circle at 50% 20%, rgba(168, 85, 247, 0.20) 0%, transparent 60%);
   --gradient-headline-accent: linear-gradient(135deg, #C8FF3D 0%, #A855F7 65%, #FAFAFA 100%);
 
-  --font-family-display: "Sora", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
   --shadow-card: 0 10px 30px -4px rgba(0, 0, 0, 0.6);
   --shadow-glow: 0 0 35px rgba(200, 255, 61, 0.22);
-}
-
-/* Bold Creative Theme Selective Accents */
-[data-theme="bold"] .section-tag {
-  color: #C8FF3D;
-  border-color: rgba(200, 255, 61, 0.35);
-  background: rgba(200, 255, 61, 0.08);
-}
-
-[data-theme="bold"] .hero-pill-dot {
-  background-color: #C8FF3D;
-  box-shadow: 0 0 10px #C8FF3D;
-}
-
-[data-theme="bold"] .hero-pill-accent {
-  color: #C8FF3D;
-}
-
-[data-theme="bold"] .brand-name-accent {
-  color: #C8FF3D;
-}
-
-[data-theme="bold"] .text-highlight {
-  color: #C8FF3D;
 }
 
 /* ==========================================================================
@@ -144,64 +135,47 @@ body,
    Aesthetic: Elegant serif headings, generous whitespace, refined layouts (Light)
    ========================================================================== */
 [data-theme="editorial"] {
-  --background: #F7F5F2;
-  --surface: #EFECE6;
-  --surface-hover: #E5E1D7;
-  --surface-card: #FFFFFF;
-  --surface-elevated: #FAF8F5;
+  --color-bg: #F7F5F2;
+  --color-bg-primary: #F7F5F2;
+  --color-bg-secondary: #EFECE6;
+  --color-card: #FFFFFF;
+  --color-card-elevated: #FAF8F5;
 
-  --brand-purple: #51206F;
-  --brand-purple-dark: #38144D;
-  --brand-purple-light: #7E36A7;
+  --color-text: #17151A;
+  --color-text-secondary: #716B75;
+  --color-text-muted: #958E9B;
+
+  --color-primary: #51206F;
+  --color-secondary: #8D4BB8;
+  --color-accent: #8D4BB8;
+
+  --color-button-bg: #51206F;
+  --color-button-text: #FFFFFF;
+  --color-button-secondary-bg: #EFECE6;
+  --color-button-secondary-text: #17151A;
+  --color-button-hover: #3E1557;
+
+  --color-border: #E2DCE5;
+  --color-input-bg: #FFFFFF;
+  --color-input-text: #17151A;
+  --color-input-border: #E2DCE5;
+
+  --color-navbar: rgba(247, 245, 242, 0.92);
+  --color-footer: #EAE6DF;
+  --color-link: #716B75;
+  --color-link-hover: #51206F;
+
+  --color-badge-bg: #EFECE6;
+  --color-badge-text: #51206F;
+  --color-focus-ring: #51206F;
+
   --brand-purple-glow: rgba(81, 32, 111, 0.12);
-  --brand-purple-soft: rgba(81, 32, 111, 0.08);
-
-  --text-primary: #17151A;
-  --text-secondary: #716B75;
-  --text-muted: #958E9B;
-
-  --border: #E2DCE5;
-  --border-focus: #51206F;
-  --border-subtle: rgba(0, 0, 0, 0.07);
-
-  --header-bg: rgba(247, 245, 242, 0.92);
-  --footer-bg: #EAE6DF;
-
   --gradient-brand: linear-gradient(135deg, #51206F 0%, #8D4BB8 100%);
   --gradient-glow: radial-gradient(circle at 50% 20%, rgba(141, 75, 184, 0.10) 0%, transparent 60%);
   --gradient-headline-accent: linear-gradient(135deg, #51206F 0%, #8D4BB8 100%);
 
-  --font-family-display: "Playfair Display", Georgia, "Times New Roman", serif;
-  --font-family-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
   --shadow-glow: 0 0 25px rgba(81, 32, 111, 0.12);
-}
-
-[data-theme="editorial"] .cta-banner {
-  background: linear-gradient(135deg, #FAF8F5 0%, #EFECE6 100%);
-  border-color: #E2DCE5;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="editorial"] .cta-banner-title {
-  color: #17151A;
-}
-
-[data-theme="editorial"] .cta-banner-desc {
-  color: #716B75;
-}
-
-[data-theme="editorial"] .btn-primary {
-  color: #FFFFFF;
-}
-
-[data-theme="editorial"] .page-hero {
-  background: radial-gradient(circle at 50% 0%, rgba(141, 75, 184, 0.10) 0%, transparent 60%);
-}
-
-[data-theme="editorial"] .page-hero-title {
-  color: #17151A;
 }
 
 /* ==========================================================================
@@ -210,64 +184,47 @@ body,
    Aesthetic: Clean, professional, approachable, and business-focused (Light)
    ========================================================================== */
 [data-theme="corporate"] {
-  --background: #FFFFFF;
-  --surface: #F4F0F8;
-  --surface-hover: #EBE4F3;
-  --surface-card: #FFFFFF;
-  --surface-elevated: #F9F7FC;
+  --color-bg: #FFFFFF;
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F4F0F8;
+  --color-card: #FFFFFF;
+  --color-card-elevated: #F9F7FC;
 
-  --brand-purple: #7028B8;
-  --brand-purple-dark: #521A88;
-  --brand-purple-light: #8E3CE0;
+  --color-text: #17121D;
+  --color-text-secondary: #716B78;
+  --color-text-muted: #928C99;
+
+  --color-primary: #7028B8;
+  --color-secondary: #521A88;
+  --color-accent: #8E3CE0;
+
+  --color-button-bg: #7028B8;
+  --color-button-text: #FFFFFF;
+  --color-button-secondary-bg: #F4F0F8;
+  --color-button-secondary-text: #17121D;
+  --color-button-hover: #5E1D9E;
+
+  --color-border: #E5DFEA;
+  --color-input-bg: #FFFFFF;
+  --color-input-text: #17121D;
+  --color-input-border: #E5DFEA;
+
+  --color-navbar: rgba(255, 255, 255, 0.94);
+  --color-footer: #F4EFF9;
+  --color-link: #716B78;
+  --color-link-hover: #7028B8;
+
+  --color-badge-bg: #F4F0F8;
+  --color-badge-text: #7028B8;
+  --color-focus-ring: #7028B8;
+
   --brand-purple-glow: rgba(112, 40, 184, 0.12);
-  --brand-purple-soft: rgba(112, 40, 184, 0.08);
-
-  --text-primary: #17121D;
-  --text-secondary: #716B78;
-  --text-muted: #928C99;
-
-  --border: #E5DFEA;
-  --border-focus: #7028B8;
-  --border-subtle: rgba(0, 0, 0, 0.06);
-
-  --header-bg: rgba(255, 255, 255, 0.94);
-  --footer-bg: #F4EFF9;
-
   --gradient-brand: linear-gradient(135deg, #7028B8 0%, #521A88 100%);
   --gradient-glow: radial-gradient(circle at 50% 20%, rgba(112, 40, 184, 0.08) 0%, transparent 60%);
   --gradient-headline-accent: linear-gradient(135deg, #7028B8 0%, #9B4CE9 100%);
 
-  --font-family-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
   --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.05);
   --shadow-glow: 0 0 25px rgba(112, 40, 184, 0.12);
-}
-
-[data-theme="corporate"] .cta-banner {
-  background: linear-gradient(135deg, #FAF8FD 0%, #F4F0F8 100%);
-  border-color: #E5DFEA;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-}
-
-[data-theme="corporate"] .cta-banner-title {
-  color: #17121D;
-}
-
-[data-theme="corporate"] .cta-banner-desc {
-  color: #716B78;
-}
-
-[data-theme="corporate"] .btn-primary {
-  color: #FFFFFF;
-}
-
-[data-theme="corporate"] .page-hero {
-  background: radial-gradient(circle at 50% 0%, rgba(112, 40, 184, 0.08) 0%, transparent 60%);
-}
-
-[data-theme="corporate"] .page-hero-title {
-  color: #17121D;
 }
 
 /* ==========================================================================
@@ -276,44 +233,45 @@ body,
    Aesthetic: Technology-focused, dark violet surfaces, restrained gradients
    ========================================================================== */
 [data-theme="futuristic"] {
-  --background: #09090F;
-  --surface: #13121E;
-  --surface-hover: #1C1A2C;
-  --surface-card: #100F1A;
-  --surface-elevated: #171524;
+  --color-bg: #09090F;
+  --color-bg-primary: #09090F;
+  --color-bg-secondary: #13121E;
+  --color-card: #100F1A;
+  --color-card-elevated: #171524;
 
-  --brand-purple: #5B21B6;
-  --brand-purple-dark: #43148F;
-  --brand-purple-light: #A78BFA;
+  --color-text: #F8F7FF;
+  --color-text-secondary: #A7A2B8;
+  --color-text-muted: #6E6982;
+
+  --color-primary: #5B21B6;
+  --color-secondary: #43148F;
+  --color-accent: #A78BFA;
+
+  --color-button-bg: #5B21B6;
+  --color-button-text: #F8F7FF;
+  --color-button-secondary-bg: #171524;
+  --color-button-secondary-text: #F8F7FF;
+  --color-button-hover: #6D28D9;
+
+  --color-border: #292437;
+  --color-input-bg: #100F1A;
+  --color-input-text: #F8F7FF;
+  --color-input-border: #292437;
+
+  --color-navbar: rgba(9, 9, 15, 0.92);
+  --color-footer: #07070B;
+  --color-link: #A7A2B8;
+  --color-link-hover: #A78BFA;
+
+  --color-badge-bg: #171524;
+  --color-badge-text: #A78BFA;
+  --color-focus-ring: #A78BFA;
+
   --brand-purple-glow: rgba(167, 139, 250, 0.22);
-  --brand-purple-soft: rgba(91, 33, 182, 0.16);
-
-  --text-primary: #F8F7FF;
-  --text-secondary: #A7A2B8;
-  --text-muted: #6E6982;
-
-  --border: #292437;
-  --border-focus: #A78BFA;
-  --border-subtle: rgba(167, 139, 250, 0.1);
-
-  --header-bg: rgba(9, 9, 15, 0.92);
-  --footer-bg: #07070B;
-
   --gradient-brand: linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%);
   --gradient-glow: radial-gradient(circle at 50% 20%, rgba(167, 139, 250, 0.18) 0%, transparent 60%);
   --gradient-headline-accent: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 60%, #FFFFFF 100%);
 
-  --font-family-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-mono: "IBM Plex Mono", Menlo, Monaco, Consolas, monospace;
-
   --shadow-card: 0 8px 26px -4px rgba(0, 0, 0, 0.6);
   --shadow-glow: 0 0 35px rgba(167, 139, 250, 0.25);
-}
-
-[data-theme="futuristic"] .section-tag,
-[data-theme="futuristic"] .hero-pill,
-[data-theme="futuristic"] .stat-card-badge {
-  font-family: var(--font-family-mono);
-  letter-spacing: 0.1em;
 }

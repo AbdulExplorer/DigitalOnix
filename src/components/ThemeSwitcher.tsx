@@ -1,40 +1,78 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Palette, X, Check, RotateCcw, Sparkles } from "lucide-react";
-import { THEMES, DEFAULT_THEME_ID, ThemeConfig } from "@/data/themes";
+import { Palette, X, Check, RotateCcw, Type, Paintbrush, Sliders } from "lucide-react";
+import {
+  THEMES,
+  DEFAULT_THEME_ID,
+  ThemeId,
+  ThemeConfig,
+  HEADING_FONTS,
+  BODY_FONTS,
+  MONO_FONTS,
+  FONT_STACKS,
+  PALETTE_ROLES,
+} from "@/data/themes";
 
-const STORAGE_KEY = "digitalonix_theme";
+const STORAGE_THEME = "digitalonix_theme";
+const STORAGE_HEADING = "digitalonix_font_heading";
+const STORAGE_BODY = "digitalonix_font_body";
+const STORAGE_MONO = "digitalonix_font_mono";
 
 export function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<string>(DEFAULT_THEME_ID);
+  const [activeTab, setActiveTab] = useState<"themes" | "fonts" | "colors">("themes");
+  const [themeId, setThemeId] = useState<ThemeId>(DEFAULT_THEME_ID);
+  const [headingFont, setHeadingFont] = useState<string>("Space Grotesk");
+  const [bodyFont, setBodyFont] = useState<string>("Inter");
+  const [monoFont, setMonoFont] = useState<string>("IBM Plex Mono");
   const [mounted, setMounted] = useState(false);
+
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Initialize theme from document or localStorage safely on mount
+  // Synchronize on mount safely
   useEffect(() => {
     setMounted(true);
     try {
-      const storedTheme = localStorage.getItem(STORAGE_KEY);
-      const docTheme = document.documentElement.getAttribute("data-theme");
-      const activeTheme = storedTheme || docTheme || DEFAULT_THEME_ID;
+      const storedTheme = localStorage.getItem(STORAGE_THEME) as ThemeId | null;
+      const validTheme = THEMES.some((t) => t.id === storedTheme)
+        ? (storedTheme as ThemeId)
+        : DEFAULT_THEME_ID;
+      setThemeId(validTheme);
 
-      if (THEMES.some((t) => t.id === activeTheme)) {
-        setCurrentTheme(activeTheme);
-        document.documentElement.setAttribute("data-theme", activeTheme);
-      } else {
-        setCurrentTheme(DEFAULT_THEME_ID);
-        document.documentElement.setAttribute("data-theme", DEFAULT_THEME_ID);
-      }
+      const preset = THEMES.find((t) => t.id === validTheme) || THEMES[0];
+
+      const storedHeading = localStorage.getItem(STORAGE_HEADING);
+      const activeHeading = storedHeading && FONT_STACKS[storedHeading]
+        ? storedHeading
+        : preset.headingFont;
+      setHeadingFont(activeHeading);
+
+      const storedBody = localStorage.getItem(STORAGE_BODY);
+      const activeBody = storedBody && FONT_STACKS[storedBody]
+        ? storedBody
+        : preset.bodyFont;
+      setBodyFont(activeBody);
+
+      const storedMono = localStorage.getItem(STORAGE_MONO);
+      const activeMono = storedMono && FONT_STACKS[storedMono]
+        ? storedMono
+        : preset.monoFont;
+      setMonoFont(activeMono);
+
+      // Apply to document
+      document.documentElement.setAttribute("data-theme", validTheme);
+      document.documentElement.style.setProperty("--font-heading", FONT_STACKS[activeHeading]);
+      document.documentElement.style.setProperty("--font-body", FONT_STACKS[activeBody]);
+      document.documentElement.style.setProperty("--font-mono", FONT_STACKS[activeMono]);
     } catch {
-      // Fallback if localStorage is inaccessible
-      setCurrentTheme(DEFAULT_THEME_ID);
+      // Fallback
+      setThemeId(DEFAULT_THEME_ID);
     }
   }, []);
 
-  // Handle outside clicks and ESC key
+  // Keyboard and outside click handlers
   useEffect(() => {
     if (!isOpen) return;
 
@@ -65,22 +103,84 @@ export function ThemeSwitcher() {
     };
   }, [isOpen]);
 
-  const selectTheme = (themeId: ThemeConfig["id"]) => {
-    setCurrentTheme(themeId);
+  // Select Preset Theme (Applies colors + preset default fonts)
+  const selectTheme = (id: ThemeId) => {
+    setThemeId(id);
+    const preset = THEMES.find((t) => t.id === id) || THEMES[0];
+
+    setHeadingFont(preset.headingFont);
+    setBodyFont(preset.bodyFont);
+    setMonoFont(preset.monoFont);
+
+    document.documentElement.setAttribute("data-theme", id);
+    document.documentElement.style.setProperty("--font-heading", FONT_STACKS[preset.headingFont]);
+    document.documentElement.style.setProperty("--font-body", FONT_STACKS[preset.bodyFont]);
+    document.documentElement.style.setProperty("--font-mono", FONT_STACKS[preset.monoFont]);
+
     try {
-      localStorage.setItem(STORAGE_KEY, themeId);
-      document.documentElement.setAttribute("data-theme", themeId);
-    } catch {
-      // Safely handle disabled localStorage
-      document.documentElement.setAttribute("data-theme", themeId);
+      localStorage.setItem(STORAGE_THEME, id);
+      localStorage.setItem(STORAGE_HEADING, preset.headingFont);
+      localStorage.setItem(STORAGE_BODY, preset.bodyFont);
+      localStorage.setItem(STORAGE_MONO, preset.monoFont);
+    } catch {}
+  };
+
+  // Change Heading Font independently
+  const handleHeadingFontChange = (font: string) => {
+    setHeadingFont(font);
+    if (FONT_STACKS[font]) {
+      document.documentElement.style.setProperty("--font-heading", FONT_STACKS[font]);
+      try {
+        localStorage.setItem(STORAGE_HEADING, font);
+      } catch {}
     }
   };
 
-  const resetToDefault = () => {
+  // Change Body Font independently
+  const handleBodyFontChange = (font: string) => {
+    setBodyFont(font);
+    if (FONT_STACKS[font]) {
+      document.documentElement.style.setProperty("--font-body", FONT_STACKS[font]);
+      try {
+        localStorage.setItem(STORAGE_BODY, font);
+      } catch {}
+    }
+  };
+
+  // Change Mono Font independently
+  const handleMonoFontChange = (font: string) => {
+    setMonoFont(font);
+    if (FONT_STACKS[font]) {
+      document.documentElement.style.setProperty("--font-mono", FONT_STACKS[font]);
+      try {
+        localStorage.setItem(STORAGE_MONO, font);
+      } catch {}
+    }
+  };
+
+  // Restore preset fonts for current theme
+  const restorePresetFonts = () => {
+    const preset = THEMES.find((t) => t.id === themeId) || THEMES[0];
+    handleHeadingFontChange(preset.headingFont);
+    handleBodyFontChange(preset.bodyFont);
+    handleMonoFontChange(preset.monoFont);
+  };
+
+  // Reset Theme to default Modern Premium
+  const resetTheme = () => {
     selectTheme(DEFAULT_THEME_ID);
   };
 
-  const activeThemeConfig = THEMES.find((t) => t.id === currentTheme) || THEMES[0];
+  // Reset All
+  const resetAll = () => {
+    selectTheme(DEFAULT_THEME_ID);
+  };
+
+  const activePreset = THEMES.find((t) => t.id === themeId) || THEMES[0];
+  const isCustomFonts =
+    headingFont !== activePreset.headingFont ||
+    bodyFont !== activePreset.bodyFont ||
+    monoFont !== activePreset.monoFont;
 
   return (
     <>
@@ -90,7 +190,7 @@ export function ThemeSwitcher() {
         type="button"
         className={`theme-trigger-btn ${isOpen ? "active" : ""}`}
         onClick={() => setIsOpen((prev) => !prev)}
-        aria-label="Explore Themes"
+        aria-label="Theme & Typography Settings"
         aria-expanded={isOpen}
         aria-haspopup="dialog"
       >
@@ -98,11 +198,11 @@ export function ThemeSwitcher() {
           <Palette size={18} aria-hidden="true" />
         </span>
         <span className="theme-trigger-label">
-          {mounted ? activeThemeConfig.name.split(" ")[0] : "Theme"}
+          {mounted ? activePreset.name.split(" ")[0] : "Theme"}
         </span>
       </button>
 
-      {/* Floating Theme Selection Panel */}
+      {/* Floating Modal Panel */}
       {isOpen && (
         <>
           <div
@@ -115,100 +215,262 @@ export function ThemeSwitcher() {
             className="theme-panel"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="theme-panel-title"
+            aria-label="Theme & Font Customizer"
           >
             {/* Header */}
             <div className="theme-panel-header">
-              <div className="theme-panel-title-group">
-                <span className="theme-panel-badge">
-                  <Sparkles size={12} aria-hidden="true" />
-                  Live Preview Mode
-                </span>
-                <h2 id="theme-panel-title" className="theme-panel-title">
-                  Explore Themes
-                </h2>
-                <p className="theme-panel-subtitle">
-                  Select a theme to live-switch typography, colors & accents
-                </p>
+              <div className="theme-panel-title-row">
+                <h2 className="theme-panel-title">Theme & Fonts</h2>
+                <button
+                  type="button"
+                  className="theme-panel-close-btn"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Close settings"
+                >
+                  <X size={18} aria-hidden="true" />
+                </button>
               </div>
-              <button
-                type="button"
-                className="theme-panel-close-btn"
-                onClick={() => setIsOpen(false)}
-                aria-label="Close themes panel"
-              >
-                <X size={18} aria-hidden="true" />
-              </button>
+
+              {/* Navigation Tabs */}
+              <div className="theme-tabs-nav" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === "themes"}
+                  className={`theme-tab-btn ${activeTab === "themes" ? "active" : ""}`}
+                  onClick={() => setActiveTab("themes")}
+                >
+                  <Sliders size={13} aria-hidden="true" />
+                  Themes
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === "fonts"}
+                  className={`theme-tab-btn ${activeTab === "fonts" ? "active" : ""}`}
+                  onClick={() => setActiveTab("fonts")}
+                >
+                  <Type size={13} aria-hidden="true" />
+                  Fonts {isCustomFonts && <span className="tab-pill-dot" />}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === "colors"}
+                  className={`theme-tab-btn ${activeTab === "colors" ? "active" : ""}`}
+                  onClick={() => setActiveTab("colors")}
+                >
+                  <Paintbrush size={13} aria-hidden="true" />
+                  Colors
+                </button>
+              </div>
             </div>
 
-            {/* Scrollable Theme Selection Cards */}
-            <div className="theme-list-scroll">
-              {THEMES.map((theme) => {
-                const isSelected = theme.id === currentTheme;
-                return (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    className={`theme-option-card ${isSelected ? "active" : ""}`}
-                    onClick={() => selectTheme(theme.id)}
-                    aria-pressed={isSelected}
-                  >
-                    {/* Header: Name + Badge */}
-                    <div className="theme-card-head">
-                      <div className="theme-name-group">
-                        <span className="theme-card-name">{theme.name}</span>
-                        <span className="theme-card-type-tag">
-                          {theme.category}
-                        </span>
-                      </div>
-                      {isSelected && (
-                        <span className="theme-check-badge" aria-label="Currently active theme">
-                          <Check size={12} strokeWidth={3} aria-hidden="true" />
-                        </span>
-                      )}
-                    </div>
+            {/* Panel Body Content */}
+            <div className="theme-panel-body">
+              {/* TAB 1: THEMES */}
+              {activeTab === "themes" && (
+                <div className="theme-presets-list">
+                  {THEMES.map((theme) => {
+                    const isSelected = theme.id === themeId;
+                    return (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        className={`theme-option-card ${isSelected ? "active" : ""}`}
+                        onClick={() => selectTheme(theme.id)}
+                        aria-pressed={isSelected}
+                      >
+                        <div className="theme-card-head">
+                          <div className="theme-name-group">
+                            <span className="theme-card-name">{theme.name}</span>
+                            <span className="theme-card-type-tag">{theme.category}</span>
+                          </div>
+                          {isSelected && (
+                            <span className="theme-check-badge" aria-label="Selected">
+                              <Check size={12} strokeWidth={3} aria-hidden="true" />
+                            </span>
+                          )}
+                        </div>
 
-                    {/* Typography summary */}
-                    <div className="theme-card-fonts">
-                      <span className="theme-card-fonts-label">Typography:</span>
-                      <span>
-                        {theme.headingFont} + {theme.bodyFont}
+                        <div className="theme-card-fonts">
+                          {theme.headingFont} + {theme.bodyFont}
+                        </div>
+
+                        <div className="theme-swatches-row">
+                          {theme.swatches.map((swatch, idx) => (
+                            <span
+                              key={idx}
+                              className="theme-swatch-circle"
+                              style={{ backgroundColor: swatch }}
+                            />
+                          ))}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* TAB 2: FONTS */}
+              {activeTab === "fonts" && (
+                <div className="theme-font-controls">
+                  {/* Status header */}
+                  <div className="font-status-bar">
+                    <span className="font-status-label">
+                      {isCustomFonts ? "Customized Fonts" : `Default: ${activePreset.name}`}
+                    </span>
+                    {isCustomFonts && (
+                      <button
+                        type="button"
+                        className="font-restore-inline-btn"
+                        onClick={restorePresetFonts}
+                      >
+                        Restore Defaults
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Dropdowns */}
+                  <div className="font-select-group">
+                    <label htmlFor="heading-font-select" className="font-select-label">
+                      Heading Font
+                    </label>
+                    <select
+                      id="heading-font-select"
+                      className="font-select-input"
+                      value={headingFont}
+                      onChange={(e) => handleHeadingFontChange(e.target.value)}
+                    >
+                      {HEADING_FONTS.map((font) => (
+                        <option key={font} value={font}>
+                          {font}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="font-select-group">
+                    <label htmlFor="body-font-select" className="font-select-label">
+                      Body Font
+                    </label>
+                    <select
+                      id="body-font-select"
+                      className="font-select-input"
+                      value={bodyFont}
+                      onChange={(e) => handleBodyFontChange(e.target.value)}
+                    >
+                      {BODY_FONTS.map((font) => (
+                        <option key={font} value={font}>
+                          {font}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="font-select-group">
+                    <label htmlFor="mono-font-select" className="font-select-label">
+                      Technical / Label Font
+                    </label>
+                    <select
+                      id="mono-font-select"
+                      className="font-select-input"
+                      value={monoFont}
+                      onChange={(e) => handleMonoFontChange(e.target.value)}
+                    >
+                      {MONO_FONTS.map((font) => (
+                        <option key={font} value={font}>
+                          {font}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Live Typography Preview Area */}
+                  <div className="typo-preview-card">
+                    <div
+                      className="typo-preview-heading"
+                      style={{ fontFamily: FONT_STACKS[headingFont] }}
+                    >
+                      Digital Agency Heading
+                    </div>
+                    <p
+                      className="typo-preview-body"
+                      style={{ fontFamily: FONT_STACKS[bodyFont] }}
+                    >
+                      High-impact performance marketing, full-funnel strategy, and digital experiences.
+                    </p>
+                    <div className="typo-preview-row">
+                      <span
+                        className="typo-preview-btn"
+                        style={{ fontFamily: FONT_STACKS[bodyFont] }}
+                      >
+                        Action Button
+                      </span>
+                      <span
+                        className="typo-preview-mono"
+                        style={{ fontFamily: FONT_STACKS[monoFont] }}
+                      >
+                        METRIC // 98.4%
                       </span>
                     </div>
+                  </div>
+                </div>
+              )}
 
-                    {/* Aesthetic tagline */}
-                    <p className="theme-card-tagline">{theme.tagline}</p>
-
-                    {/* Swatches */}
-                    <div className="theme-swatches-row" aria-label="Theme color palette">
-                      {theme.swatches.map((swatch, idx) => (
-                        <span
-                          key={idx}
-                          className="theme-swatch-circle"
-                          style={{ backgroundColor: swatch }}
-                          title={`Color ${swatch}`}
-                        />
-                      ))}
-                    </div>
-                  </button>
-                );
-              })}
+              {/* TAB 3: COLORS */}
+              {activeTab === "colors" && (
+                <div className="theme-color-palette">
+                  <div className="palette-grid">
+                    {PALETTE_ROLES.map(({ key, label }) => {
+                      const hex = activePreset.colors[key];
+                      return (
+                        <div key={key} className="palette-role-item">
+                          <span
+                            className="palette-role-swatch"
+                            style={{ backgroundColor: hex }}
+                          />
+                          <div className="palette-role-info">
+                            <span className="palette-role-label">{label}</span>
+                            <span className="palette-role-hex">{hex}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Panel Footer */}
             <div className="theme-panel-footer">
-              <div className="theme-active-indicator">
-                Active: <span className="theme-active-name">{activeThemeConfig.name}</span>
+              <div className="footer-button-row">
+                <button
+                  type="button"
+                  className="theme-footer-btn"
+                  onClick={resetTheme}
+                  title="Reset to default Modern Premium theme"
+                >
+                  <RotateCcw size={12} aria-hidden="true" />
+                  Reset Theme
+                </button>
+                <button
+                  type="button"
+                  className="theme-footer-btn"
+                  onClick={restorePresetFonts}
+                  title="Restore active theme's preset fonts"
+                >
+                  Reset Fonts
+                </button>
+                <button
+                  type="button"
+                  className="theme-footer-btn highlight"
+                  onClick={resetAll}
+                  title="Reset both theme and typography to defaults"
+                >
+                  Reset All
+                </button>
               </div>
-              <button
-                type="button"
-                className="theme-reset-btn"
-                onClick={resetToDefault}
-                title="Reset back to Modern Premium theme"
-              >
-                <RotateCcw size={13} aria-hidden="true" />
-                Reset Default
-              </button>
             </div>
           </div>
         </>
@@ -216,4 +478,3 @@ export function ThemeSwitcher() {
     </>
   );
 }
-

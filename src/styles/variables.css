@@ -1,47 +1,91 @@
 :root {
-  /* Core Brand Colors */
-  --brand-purple: #781DB5;
-  --brand-purple-dark: #541080;
-  --brand-purple-light: #9B3BE6;
-  --brand-purple-glow: rgba(120, 29, 181, 0.22);
-  --brand-purple-soft: rgba(120, 29, 181, 0.12);
+  /* ==========================================================================
+     SEMANTIC COLOR SYSTEM (DEFAULT / MODERN PREMIUM)
+     ========================================================================== */
+  --color-bg: #0D0D0F;
+  --color-bg-primary: #0D0D0F;
+  --color-bg-secondary: #15131A;
+  --color-card: #141219;
+  --color-card-elevated: #1B1822;
 
-  /* Surfaces & Backgrounds */
-  --background: #0D0F12;
-  --surface: #15131A;
-  --surface-hover: #201629;
-  --surface-elevated: #1B1822;
-  --surface-card: #141219;
-  --surface-light: #F7F5FA; /* Subtle light section option */
-  --surface-light-text: #121016;
+  --color-text: #FFFFFF;
+  --color-text-secondary: #A5A5B0;
+  --color-text-muted: #72707D;
 
-  /* Typography Colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #A6A1AD;
-  --text-muted: #746E7C;
-  --text-on-light: #1A1721;
-  --text-on-light-muted: #5C5766;
+  --color-primary: #8B3DFF;
+  --color-secondary: #5B21B6;
+  --color-accent: #A364FF;
 
-  /* Borders & Dividers */
-  --border: #29252F;
-  --border-focus: #781DB5;
+  --color-button-bg: #8B3DFF;
+  --color-button-text: #FFFFFF;
+  --color-button-secondary-bg: #1B1822;
+  --color-button-secondary-text: #FFFFFF;
+  --color-button-hover: #7A28F5;
+
+  --color-border: #29252F;
+  --color-input-bg: #141219;
+  --color-input-text: #FFFFFF;
+  --color-input-border: #29252F;
+
+  --color-navbar: rgba(13, 13, 15, 0.88);
+  --color-footer: #0A0A0C;
+  --color-link: #A5A5B0;
+  --color-link-hover: #FFFFFF;
+
+  --color-badge-bg: #1B1822;
+  --color-badge-text: #A364FF;
+  --color-focus-ring: #8B3DFF;
+
+  /* ==========================================================================
+     TYPOGRAPHY TOKENS
+     ========================================================================== */
+  --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', Menlo, Monaco, Consolas, monospace;
+
+  /* Backwards compatibility aliases */
+  --background: var(--color-bg);
+  --surface: var(--color-bg-secondary);
+  --surface-hover: var(--color-card-elevated);
+  --surface-elevated: var(--color-card-elevated);
+  --surface-card: var(--color-card);
+
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+
+  --brand-purple: var(--color-primary);
+  --brand-purple-dark: var(--color-secondary);
+  --brand-purple-light: var(--color-accent);
+  --brand-purple-glow: rgba(139, 61, 255, 0.22);
+  --brand-purple-soft: rgba(139, 61, 255, 0.12);
+
+  --border: var(--color-border);
+  --border-focus: var(--color-focus-ring);
   --border-subtle: rgba(255, 255, 255, 0.08);
 
-  /* Gradients */
-  --gradient-brand: linear-gradient(135deg, #781DB5 0%, #541080 100%);
-  --gradient-subtle: linear-gradient(180deg, rgba(21, 19, 26, 0.8) 0%, rgba(13, 15, 18, 0.95) 100%);
-  --gradient-glow: radial-gradient(circle at 50% 20%, rgba(120, 29, 181, 0.15) 0%, transparent 60%);
+  --header-bg: var(--color-navbar);
+  --footer-bg: var(--color-footer);
+
+  --gradient-brand: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  --gradient-subtle: linear-gradient(180deg, var(--color-card) 0%, var(--color-bg) 100%);
+  --gradient-glow: radial-gradient(circle at 50% 20%, rgba(139, 61, 255, 0.16) 0%, transparent 60%);
+  --gradient-headline-accent: linear-gradient(135deg, #C285FF 0%, var(--color-primary) 60%, var(--color-text) 100%);
+
+  --font-family-display: var(--font-heading);
+  --font-family-sans: var(--font-body);
+  --font-family-mono: var(--font-mono);
 
   /* Spacing System */
-  --space-2xs: 0.25rem; /* 4px */
-  --space-xs: 0.5rem;   /* 8px */
-  --space-sm: 0.75rem;  /* 12px */
-  --space-md: 1rem;     /* 16px */
-  --space-lg: 1.5rem;   /* 24px */
-  --space-xl: 2rem;     /* 32px */
-  --space-2xl: 3rem;    /* 48px */
-  --space-3xl: 4.5rem;  /* 72px */
-  --space-4xl: 6rem;    /* 96px */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --space-4xl: 6rem;
 
   /* Layout Container */
   --container-max: 1200px;
@@ -49,9 +93,6 @@
   --container-pad: 1.5rem;
 
   /* Typography Scales */
-  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-family-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -83,7 +124,7 @@
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 35px rgba(120, 29, 181, 0.25);
+  --shadow-glow: 0 0 35px rgba(139, 61, 255, 0.25);
   --shadow-pop: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
 
   /* Z-indices */
@@ -93,4 +134,3 @@
   --z-modal: 2000;
   --z-toast: 3000;
 }
-
