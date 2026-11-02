@@ -14,6 +14,8 @@ import {
   Globe,
   Code2,
   MapPin,
+  Users,
+  Search,
   Check,
   ArrowRight,
 } from "lucide-react";
@@ -48,6 +50,10 @@ export function Services() {
         return <Code2 size={22} />;
       case "MapPin":
         return <MapPin size={22} />;
+      case "Users":
+        return <Users size={22} />;
+      case "Search":
+        return <Search size={22} />;
       default:
         return <Globe size={22} />;
     }

@@ -44,15 +44,16 @@ export function Hero() {
           <span>Creative &amp; Digital Marketing Agency</span>
         </div> */}
 
-        {/* Stable Headline Container */}
+        {/* Stable Headline Container with Dynamic Second Line */}
         <div className="hero-headline-wrapper">
           <h1 className="hero-headline">
-            <span className="hero-static-prefix">We make </span>
+            <span className="hero-static-prefix">We Make</span>
             <span className="hero-dynamic-slot">
               <span
                 key={currentIndex}
-                className={`hero-dynamic-phrase ${isTransitioning ? "headline-exiting" : "headline-active"
-                  }`}
+                className={`hero-dynamic-phrase ${
+                  isTransitioning ? "headline-exiting" : "headline-active"
+                }`}
               >
                 <span>{currentStatement.prefix}</span>
                 <span className="hero-headline-accent">{currentStatement.highlight}</span>
@@ -62,7 +63,11 @@ export function Hero() {
 
           <noscript>
             <h1 className="hero-headline noscript-headline">
-              We make brands <span className="hero-headline-accent">stand out &amp; grow.</span>
+              <span className="hero-static-prefix">We Make</span>
+              <span className="hero-dynamic-slot">
+                <span>brands </span>
+                <span className="hero-headline-accent">stand out &amp; grow.</span>
+              </span>
             </h1>
           </noscript>
         </div>

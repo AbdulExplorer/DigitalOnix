@@ -13,6 +13,8 @@ import {
   Globe,
   Code2,
   MapPin,
+  Users,
+  Search,
   Check,
   ArrowRight,
   Sparkles,
@@ -21,7 +23,7 @@ import {
 export const metadata: Metadata = {
   title: "Services & Capabilities",
   description:
-    "Explore Digitalonix's ten core disciplines across Marketing & Growth, Creative Production, Technology, and Local Visibility.",
+    "Explore Digitalonix's comprehensive disciplines across Marketing & Growth, Creative Production, Technology, and Local Visibility.",
 };
 
 export default function ServicesPage() {
@@ -47,6 +49,10 @@ export default function ServicesPage() {
         return <Code2 size={24} />;
       case "MapPin":
         return <MapPin size={24} />;
+      case "Users":
+        return <Users size={24} />;
+      case "Search":
+        return <Search size={24} />;
       default:
         return <Globe size={24} />;
     }

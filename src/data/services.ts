@@ -48,6 +48,26 @@ export const servicesData: ServiceItem[] = [
     features: ["Meta & Google Ads", "Audience Retargeting", "Creative Split Testing"],
     deliverables: ["Custom Ad Creatives", "Live Budget Tracking", "CPA/ROAS Reporting"],
   },
+  {
+    id: "influencer-marketing",
+    title: "Influencer Marketing",
+    category: "Marketing & Growth",
+    shortDescription: "Strategic creator partnerships, micro-influencer seeding, and brand ambassador campaigns.",
+    detailedDescription: "Connect with audiences through creators they trust. We handle talent vetting, contract negotiation, creative brief coordination, and performance tracking to maximize engagement and authentic conversions.",
+    iconName: "Users",
+    features: ["Creator Discovery & Vetting", "Campaign Briefs & Management", "Performance & ROAS Attribution"],
+    deliverables: ["Curated Creator Rosters", "High-Converting UGC Assets", "Campaign Reach & ROI Reporting"],
+  },
+  {
+    id: "seo-optimization",
+    title: "Search Engine Optimization (SEO)",
+    category: "Marketing & Growth",
+    shortDescription: "Organic rank dominance, high-intent keyword acquisition, and technical search authority.",
+    detailedDescription: "Sustainable organic visibility that brings continuous, high-intent traffic to your brand. From comprehensive technical audits and on-page semantic architecture to high-authority backlink acquisition and content strategy.",
+    iconName: "Search",
+    features: ["Technical SEO Audits", "Keyword Architecture & Mapping", "Authority Link Building"],
+    deliverables: ["Full Technical Audit Roadmap", "Keyword Ranking Dashboards", "Monthly Organic Traffic Growth"],
+  },
 
   // Creative Production
   {

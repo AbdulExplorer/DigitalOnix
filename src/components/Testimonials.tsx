@@ -1,55 +1,60 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { testimonialsData } from "@/data/testimonials";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function Testimonials() {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [manualOffset, setManualOffset] = useState(0);
   const touchStartXRef = useRef<number | null>(null);
-  const totalItems = testimonialsData.length;
 
-  const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % totalItems);
-  }, [totalItems]);
+  // 4 duplicate sets guarantee continuous seamless loop coverage across all screen widths up to 4K
+  const loopItems = [
+    ...testimonialsData,
+    ...testimonialsData,
+    ...testimonialsData,
+    ...testimonialsData,
+  ];
 
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + totalItems) % totalItems);
-  }, [totalItems]);
+  const handlePrev = () => {
+    setManualOffset((prev) => {
+      const next = prev + 380;
+      return next > 1200 ? 0 : next;
+    });
+  };
+
+  const handleNext = () => {
+    setManualOffset((prev) => {
+      const next = prev - 380;
+      return next < -1200 ? 0 : next;
+    });
+  };
 
   useEffect(() => {
-    if (isPaused) return;
-
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 5500);
-
     const handleVisibilityChange = () => {
       setIsPaused(document.hidden);
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [isPaused, nextSlide]);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
+    setIsPaused(true);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
     if (touchStartXRef.current === null) return;
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartXRef.current - touchEndX;
 
-    if (diff > 50) {
-      nextSlide();
-    } else if (diff < -50) {
-      prevSlide();
+    if (diff > 45) {
+      handleNext();
+    } else if (diff < -45) {
+      handlePrev();
     }
 
     touchStartXRef.current = null;
@@ -72,35 +77,37 @@ export function Testimonials() {
           <div className="carousel-controls-bar">
             <button
               className="carousel-nav-btn"
-              onClick={prevSlide}
-              aria-label="Previous testimonial"
+              onClick={handlePrev}
+              aria-label="Scroll testimonials backward"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               className="carousel-nav-btn"
-              onClick={nextSlide}
-              aria-label="Next testimonial"
+              onClick={handleNext}
+              aria-label="Scroll testimonials forward"
             >
               <ChevronRight size={18} />
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Carousel Viewport */}
+      {/* Infinite Moving Loop Marquee */}
+      <div
+        className="testimonials-loop-container"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div
-          className="carousel-viewport"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
+          className="testimonials-nudge-wrapper"
+          style={{
+            transform: `translate3d(${manualOffset}px, 0, 0)`,
+          }}
         >
-          <div
-            className="carousel-track"
-            style={{
-              transform: `translateX(-${currentIndex * (100 / Math.min(5, totalItems))}%)`,
-            }}
-          >
-            {testimonialsData.map((item) => (
-              <article key={item.id} className="testimonial-card">
+          <div className={`testimonials-loop-track ${isPaused ? "is-paused" : ""}`}>
+            {loopItems.map((item, idx) => (
+              <article key={`${item.id}-${idx}`} className="testimonial-card">
                 <p className="testimonial-quote">&ldquo;{item.quote}&rdquo;</p>
                 <div className="testimonial-author">
                   <span className="testimonial-author-name">{item.author}</span>
@@ -109,18 +116,6 @@ export function Testimonials() {
               </article>
             ))}
           </div>
-        </div>
-
-        {/* Carousel Indicators */}
-        <div className="carousel-indicators">
-          {testimonialsData.map((item, idx) => (
-            <button
-              key={item.id}
-              className={`indicator-dot ${currentIndex === idx ? "active" : ""}`}
-              onClick={() => setCurrentIndex(idx)}
-              aria-label={`Go to testimonial ${idx + 1}`}
-            />
-          ))}
         </div>
       </div>
     </section>
