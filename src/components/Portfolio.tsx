@@ -52,25 +52,25 @@ export function Portfolio() {
               aria-selected={activeCategory === category}
             >
               {category === "Results" && (
-                <BarChart3 size={15} style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
+                <BarChart3 size={15} className="tab-btn-icon" />
               )}
               {category === "Production" && (
-                <Video size={15} style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
+                <Video size={15} className="tab-btn-icon" />
               )}
               {category === "Designing" && (
-                <Palette size={15} style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
+                <Palette size={15} className="tab-btn-icon" />
               )}
-              {category}
+              <span>{category}</span>
             </button>
           ))}
         </div>
 
-        {/* Portfolio Grid */}
-        <div className="portfolio-grid">
-          {displayedItems.map((item, idx) => (
+        {/* Portfolio Grid with key for smooth tab transition (never hides cards) */}
+        <div key={activeCategory} className="portfolio-grid portfolio-grid-fade">
+          {displayedItems.map((item) => (
             <article
               key={item.id}
-              className={`portfolio-card reveal-on-scroll reveal-delay-${(idx % 3) + 1}`}
+              className="portfolio-card"
               onClick={() => setSelectedModalItem(item)}
               role="button"
               tabIndex={0}

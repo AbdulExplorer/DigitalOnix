@@ -95,13 +95,10 @@ export function Services() {
           ))}
         </div>
 
-        {/* Services Card Grid */}
-        <div className="services-grid">
-          {filteredServices.map((service, idx) => (
-            <article
-              key={service.id}
-              className={`service-card reveal-on-scroll reveal-delay-${(idx % 3) + 1}`}
-            >
+        {/* Services Card Grid with key for smooth tab transition (never hides cards) */}
+        <div key={selectedCategory} className="services-grid services-grid-fade">
+          {filteredServices.map((service) => (
+            <article key={service.id} className="service-card">
               <div className="service-card-top">
                 <div className="service-icon-wrap" aria-hidden="true">
                   {renderIcon(service.iconName)}

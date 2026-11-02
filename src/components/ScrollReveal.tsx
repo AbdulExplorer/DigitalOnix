@@ -17,9 +17,6 @@ export function ScrollReveal() {
       return;
     }
 
-    const elements = document.querySelectorAll(".reveal-on-scroll:not(.is-revealed)");
-    if (!elements.length) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -35,11 +32,28 @@ export function ScrollReveal() {
       }
     );
 
-    elements.forEach((el) => observer.observe(el));
+    const observeUnrevealed = () => {
+      const elements = document.querySelectorAll(".reveal-on-scroll:not(.is-revealed)");
+      elements.forEach((el) => observer.observe(el));
+    };
 
-    return () => observer.disconnect();
+    observeUnrevealed();
+
+    // Listen for dynamically mounted DOM elements so tabs or filters never stay hidden
+    const mutationObserver = new MutationObserver(() => {
+      observeUnrevealed();
+    });
+
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
   }, [pathname]);
 
   return null;
 }
-
