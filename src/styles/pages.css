@@ -1,0 +1,134 @@
+.page-hero {
+  padding-top: var(--space-4xl);
+  padding-bottom: var(--space-3xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(circle at 50% 0%, rgba(120, 29, 181, 0.18) 0%, transparent 60%);
+}
+
+.page-hero-title {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.03em;
+}
+
+.page-hero-desc {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--text-secondary);
+  max-width: 680px;
+  margin: 0 auto var(--space-xl) auto;
+}
+
+/* Process Timeline Section */
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-3xl);
+}
+
+.process-step-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  position: relative;
+}
+
+.process-step-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--brand-purple-light);
+  line-height: 1;
+  margin-bottom: var(--space-md);
+  opacity: 0.85;
+}
+
+.process-step-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.process-step-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* Values Grid */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+.value-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  transition: border-color var(--transition-fast);
+}
+
+.value-card:hover {
+  border-color: var(--brand-purple);
+}
+
+.value-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(120, 29, 181, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-purple-light);
+  margin-bottom: var(--space-md);
+}
+
+.value-card-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.value-card-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* Call to Action Banner on Inner Pages */
+.cta-banner {
+  background: linear-gradient(135deg, #181224 0%, #100D16 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3xl) var(--space-2xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: var(--space-4xl) 0;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.cta-banner-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: var(--space-sm);
+}
+
+.cta-banner-desc {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  max-width: 580px;
+  margin: 0 auto var(--space-xl) auto;
+}
+

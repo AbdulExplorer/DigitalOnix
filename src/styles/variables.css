@@ -1,0 +1,96 @@
+:root {
+  /* Core Brand Colors */
+  --brand-purple: #781DB5;
+  --brand-purple-dark: #541080;
+  --brand-purple-light: #9B3BE6;
+  --brand-purple-glow: rgba(120, 29, 181, 0.22);
+  --brand-purple-soft: rgba(120, 29, 181, 0.12);
+
+  /* Surfaces & Backgrounds */
+  --background: #0D0F12;
+  --surface: #15131A;
+  --surface-hover: #201629;
+  --surface-elevated: #1B1822;
+  --surface-card: #141219;
+  --surface-light: #F7F5FA; /* Subtle light section option */
+  --surface-light-text: #121016;
+
+  /* Typography Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A6A1AD;
+  --text-muted: #746E7C;
+  --text-on-light: #1A1721;
+  --text-on-light-muted: #5C5766;
+
+  /* Borders & Dividers */
+  --border: #29252F;
+  --border-focus: #781DB5;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #781DB5 0%, #541080 100%);
+  --gradient-subtle: linear-gradient(180deg, rgba(21, 19, 26, 0.8) 0%, rgba(13, 15, 18, 0.95) 100%);
+  --gradient-glow: radial-gradient(circle at 50% 20%, rgba(120, 29, 181, 0.15) 0%, transparent 60%);
+
+  /* Spacing System */
+  --space-2xs: 0.25rem; /* 4px */
+  --space-xs: 0.5rem;   /* 8px */
+  --space-sm: 0.75rem;  /* 12px */
+  --space-md: 1rem;     /* 16px */
+  --space-lg: 1.5rem;   /* 24px */
+  --space-xl: 2rem;     /* 32px */
+  --space-2xl: 3rem;    /* 48px */
+  --space-3xl: 4.5rem;  /* 72px */
+  --space-4xl: 6rem;    /* 96px */
+
+  /* Layout Container */
+  --container-max: 1200px;
+  --container-wide: 1360px;
+  --container-pad: 1.5rem;
+
+  /* Typography Scales */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  /* Line Heights */
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 35px rgba(120, 29, 181, 0.25);
+  --shadow-pop: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+
+  /* Z-indices */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-header: 1000;
+  --z-modal: 2000;
+  --z-toast: 3000;
+}
+

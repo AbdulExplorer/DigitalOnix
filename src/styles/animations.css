@@ -1,0 +1,109 @@
+/* Marquee Infinite Loop */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 38s linear infinite;
+  will-change: transform;
+}
+
+.marquee-container:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Hero Headline Transitions */
+@keyframes headline-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes headline-exit {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+.headline-active {
+  animation: headline-enter 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.headline-exiting {
+  animation: headline-exit 320ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Ambient Subtle Glow */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.08);
+  }
+}
+
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: glow-pulse 9s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* Fade in for general components */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in-up 500ms ease-out forwards;
+}
+
+/* Spinner for Form Submit */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #FFFFFF;
+  animation: spin 0.8s linear infinite;
+}
+

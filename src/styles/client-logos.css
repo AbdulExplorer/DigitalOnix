@@ -1,0 +1,88 @@
+.logos-section {
+  padding-top: var(--space-2xl);
+  padding-bottom: var(--space-2xl);
+  overflow: hidden;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  background: var(--background);
+}
+
+.logos-heading-wrap {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.logos-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.marquee-outer-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+.marquee-inner-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+  width: max-content;
+  animation: marquee-scroll 45s linear infinite;
+  padding: var(--space-xs) 0;
+}
+
+.marquee-outer-container:hover .marquee-inner-strip {
+  animation-play-state: paused;
+}
+
+.logo-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1.25rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  cursor: default;
+}
+
+.logo-badge:hover {
+  border-color: var(--brand-purple);
+  background-color: var(--surface-hover);
+}
+
+.logo-symbol {
+  width: 22px;
+  height: 22px;
+  color: var(--brand-purple-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-inner-strip {
+    animation: none;
+    overflow-x: auto;
+    width: 100%;
+    justify-content: flex-start;
+    padding-bottom: 0.5rem;
+  }
+}
+

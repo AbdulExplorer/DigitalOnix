@@ -1,0 +1,202 @@
+.quote-section {
+  position: relative;
+  background-color: var(--background);
+  overflow: hidden;
+}
+
+.quote-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: var(--space-3xl);
+  align-items: flex-start;
+}
+
+/* Info Column */
+.quote-info-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.quote-subheading {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-xl);
+}
+
+.quote-contact-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.quote-contact-heading {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quote-contact-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* Form Container */
+.quote-form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.quote-form-header {
+  margin-bottom: var(--space-xl);
+}
+
+.quote-form-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2xs);
+}
+
+.quote-form-desc {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* Form Elements */
+.quote-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  position: relative;
+}
+
+.form-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 0 3px rgba(120, 29, 181, 0.2);
+  outline: none;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A6A1AD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.1em;
+  padding-right: 2.5rem;
+}
+
+.form-select option {
+  background-color: #15131A;
+  color: #FFFFFF;
+}
+
+.form-textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.form-error-text {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.2rem;
+}
+
+/* Honeypot field (hidden from humans) */
+.honeypot-field {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+/* Feedback Banners */
+.form-status-banner {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.banner-success {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #4ade80;
+}
+
+.banner-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.quote-submit-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: var(--text-base);
+}
+
+@media (max-width: 900px) {
+  .quote-layout-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  .quote-form-card {
+    padding: var(--space-xl);
+  }
+}
+

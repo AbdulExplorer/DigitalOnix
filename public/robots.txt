@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://digitalonix.in/sitemap.xml
+
