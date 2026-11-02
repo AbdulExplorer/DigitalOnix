@@ -188,7 +188,7 @@ export function ContactForm() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g. Rahul Sharma"
+                  placeholder="Enter name"
                   className="form-input"
                   required
                   aria-required="true"
@@ -209,7 +209,7 @@ export function ContactForm() {
                   name="contact"
                   value={formData.contact}
                   onChange={handleChange}
-                  placeholder="name@company.com or +91..."
+                  placeholder="Enter email or phone number"
                   className="form-input"
                   required
                   aria-required="true"
