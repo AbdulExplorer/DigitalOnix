@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { AntigravityField } from "@/components/AntigravityField";
 
 const DYNAMIC_STATEMENTS = [
   { prefix: "brands ", highlight: "stand out." },
@@ -11,6 +12,7 @@ const DYNAMIC_STATEMENTS = [
 ];
 
 export function Hero() {
+  const heroRef = useRef<HTMLElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -34,8 +36,9 @@ export function Hero() {
   const currentStatement = DYNAMIC_STATEMENTS[currentIndex];
 
   return (
-    <section className="hero-section" aria-label="Digitalonix Agency Hero">
+    <section ref={heroRef} className="hero-section" aria-label="Digitalonix Agency Hero">
       <div className="hero-glow-blob" aria-hidden="true" />
+      <AntigravityField containerRef={heroRef} />
 
       <div className="container hero-content">
         {/* Minimal Pill Badge */}
