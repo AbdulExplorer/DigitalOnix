@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { testimonialsData } from "@/data/testimonials";
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,21 +63,10 @@ export function Testimonials() {
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="container">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "1rem",
-            marginBottom: "var(--space-2xl)",
-          }}
-        >
+        <div className="testimonials-header">
           <div>
             <span className="section-tag">Testimonials</span>
-            <h2 className="section-title" style={{ marginBottom: "0.25rem" }}>
-              What partners say about us.
-            </h2>
+            <h2 className="section-title">What partners say.</h2>
           </div>
 
           <div className="carousel-controls-bar">
@@ -86,14 +75,14 @@ export function Testimonials() {
               onClick={prevSlide}
               aria-label="Previous testimonial"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </button>
             <button
               className="carousel-nav-btn"
               onClick={nextSlide}
               aria-label="Next testimonial"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={18} />
             </button>
           </div>
         </div>
@@ -110,30 +99,12 @@ export function Testimonials() {
               transform: `translateX(-${currentIndex * (100 / Math.min(5, totalItems))}%)`,
             }}
           >
-            {testimonialsData.map((item, idx) => (
+            {testimonialsData.map((item) => (
               <article key={item.id} className="testimonial-card">
-                <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <span className="testimonial-badge">{item.serviceCategory}</span>
-                    <Quote size={18} style={{ color: "var(--brand-purple-light)", opacity: 0.6 }} />
-                  </div>
-                  <p className="testimonial-quote">&ldquo;{item.placeholderQuote}&rdquo;</p>
-                </div>
-
+                <p className="testimonial-quote">&ldquo;{item.quote}&rdquo;</p>
                 <div className="testimonial-author">
-                  <div className="testimonial-avatar-fallback">
-                    {`0${idx + 1}`}
-                  </div>
-                  <div className="testimonial-author-info">
-                    <span className="testimonial-author-name">{item.clientIdentifier}</span>
-                    <span className="testimonial-author-role">{item.rolePlaceholder}</span>
-                  </div>
+                  <span className="testimonial-author-name">{item.author}</span>
+                  <span className="testimonial-author-role">{item.role}</span>
                 </div>
               </article>
             ))}

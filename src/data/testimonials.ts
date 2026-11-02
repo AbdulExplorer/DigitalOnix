@@ -1,50 +1,39 @@
 export interface TestimonialItem {
   id: string;
-  clientIdentifier: string;
-  rolePlaceholder: string;
-  placeholderQuote: string;
-  serviceCategory: string;
+  quote: string;
+  author: string;
+  role: string;
 }
 
 export const testimonialsData: TestimonialItem[] = [
   {
     id: "testimonial-01",
-    clientIdentifier: "Retail Brand Partner",
-    rolePlaceholder: "Managing Director",
-    placeholderQuote:
-      "Digitalonix revamped our complete social presence and advertising funnel. Campaign response rates improved noticeably within the initial 90 days.",
-    serviceCategory: "Paid Advertising & Social Media",
+    quote: "Digitalonix revamped our complete social presence and advertising funnel. Campaign response rates improved noticeably within 90 days.",
+    author: "Retail Partner",
+    role: "Managing Director",
   },
   {
     id: "testimonial-02",
-    clientIdentifier: "Healthcare & Diagnostics",
-    rolePlaceholder: "Director of Operations",
-    placeholderQuote:
-      "The local visibility program and Google Business Profile management brought steady appointment inquiries consistently month-over-month.",
-    serviceCategory: "Local Visibility & GBP",
+    quote: "Their local visibility program and search management brought steady customer inquiries consistently month-over-month.",
+    author: "Healthcare Network",
+    role: "Director of Operations",
   },
   {
     id: "testimonial-03",
-    clientIdentifier: "Education Institute",
-    rolePlaceholder: "Head of Marketing",
-    placeholderQuote:
-      "Their creative team produced high-energy video content and Reels that resonated with our core audience and elevated our brand perception.",
-    serviceCategory: "Video Production & Content",
+    quote: "High-energy video content and Reels that resonated with our core audience and elevated our brand perception.",
+    author: "EdTech Platform",
+    role: "Marketing Head",
   },
   {
     id: "testimonial-04",
-    clientIdentifier: "Real Estate Developers",
-    rolePlaceholder: "Principal Partner",
-    placeholderQuote:
-      "From bespoke brand collateral to disciplined Meta lead generation, Digitalonix demonstrated strong execution speed and clear reporting metrics.",
-    serviceCategory: "Digital Marketing & Creatives",
+    quote: "Disciplined Meta lead generation with strong execution speed and clear, transparent reporting metrics.",
+    author: "Real Estate Developers",
+    role: "Principal Partner",
   },
   {
     id: "testimonial-05",
-    clientIdentifier: "Lifestyle & Apparel",
-    rolePlaceholder: "Co-Founder",
-    placeholderQuote:
-      "The performance ad creatives and website overhaul significantly lowered our customer acquisition cost while preserving premium brand positioning.",
-    serviceCategory: "Web Development & Paid Media",
+    quote: "High-performance ad creatives and website overhaul that lowered our customer acquisition cost significantly.",
+    author: "Lifestyle Brand",
+    role: "Co-Founder",
   },
 ];

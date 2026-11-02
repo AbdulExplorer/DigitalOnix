@@ -10,20 +10,23 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close mobile menu when pathname changes
+  // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll only when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
     };
   }, [mobileMenuOpen]);
 
@@ -88,7 +91,7 @@ export function Header() {
         {/* Mobile Toggle Button */}
         <button
           className="mobile-toggle-btn"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
           aria-expanded={mobileMenuOpen}
           aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-controls="mobile-navigation-drawer"
@@ -97,73 +100,75 @@ export function Header() {
         </button>
       </div>
 
-      {/* Mobile Drawer Overlay */}
-      <div
-        className={`mobile-nav-backdrop ${mobileMenuOpen ? "open" : ""}`}
-        onClick={() => setMobileMenuOpen(false)}
-        aria-hidden="true"
-      />
+      {/* Mobile Drawer Overlay - Only mounted when opened to eliminate off-screen horizontal scrolling */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="mobile-nav-backdrop"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
 
-      <div
-        id="mobile-navigation-drawer"
-        className={`mobile-nav-drawer ${mobileMenuOpen ? "open" : ""}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile Navigation"
-      >
-        <div className="mobile-nav-header">
-          <div className="brand-link">
-            <div className="brand-emblem" aria-hidden="true">
-              <Sparkles size={16} />
+          <div
+            id="mobile-navigation-drawer"
+            className="mobile-nav-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile Navigation"
+          >
+            <div className="mobile-nav-header">
+              <div className="brand-link">
+                <div className="brand-emblem" aria-hidden="true">
+                  <Sparkles size={16} />
+                </div>
+                <span>
+                  Digital<span className="brand-name-accent">onix</span>
+                </span>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+                style={{ color: "var(--text-secondary)", padding: "4px" }}
+              >
+                <X size={20} />
+              </button>
             </div>
-            <span>
-              Digital<span className="brand-name-accent">onix</span>
-            </span>
-          </div>
-          <button
-            onClick={() => setMobileMenuOpen(false)}
-            aria-label="Close menu"
-            style={{ color: "var(--text-secondary)", padding: "4px" }}
-          >
-            <X size={20} />
-          </button>
-        </div>
 
-        <ul className="mobile-nav-list">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`mobile-nav-link ${isActive ? "active" : ""}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+            <ul className="mobile-nav-list">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={`mobile-nav-link ${isActive ? "active" : ""}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
-        <div className="mobile-nav-footer">
-          <Link
-            href="/#quote"
-            className="btn btn-primary"
-            onClick={() => setMobileMenuOpen(false)}
-            style={{ width: "100%" }}
-          >
-            <span>Get a Quote</span>
-            <ArrowRight size={16} />
-          </Link>
-          <div className="mobile-nav-info">
-            <p>Based in {siteConfig.locationDisplay}</p>
-            <p>Creative Marketing & Technology</p>
+            <div className="mobile-nav-footer">
+              <Link
+                href="/#quote"
+                className="btn btn-primary"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ width: "100%" }}
+              >
+                <span>Get a Quote</span>
+                <ArrowRight size={16} />
+              </Link>
+              <div className="mobile-nav-info">
+                <p>Based in {siteConfig.locationDisplay}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </header>
   );
 }
-
