@@ -77,7 +77,8 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="modern" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         {/* Synchronously apply saved theme before DOM paint to avoid flashes */}
         <script
           dangerouslySetInnerHTML={{

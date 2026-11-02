@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/data/config";
-import { Menu, X, ArrowRight, Sparkles } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -53,9 +54,14 @@ export function Header() {
       <div className="container site-header-inner">
         {/* Brand Logo */}
         <Link href="/" className="brand-link" aria-label="Digitalonix Home">
-          <div className="brand-emblem" aria-hidden="true">
-            <Sparkles size={18} />
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Digitalonix Logo"
+            width={36}
+            height={36}
+            className="brand-logo-img"
+            priority
+          />
           <span className="brand-name">
             Digital<span className="brand-name-accent">onix</span>
           </span>
@@ -118,9 +124,13 @@ export function Header() {
           >
             <div className="mobile-nav-header">
               <div className="brand-link">
-                <div className="brand-emblem" aria-hidden="true">
-                  <Sparkles size={16} />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="Digitalonix Logo"
+                  width={32}
+                  height={32}
+                  className="brand-logo-img"
+                />
                 <span>
                   Digital<span className="brand-name-accent">onix</span>
                 </span>

@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { siteConfig } from "@/data/config";
-import { Sparkles, Instagram, Linkedin, MapPin, Mail, Phone, ArrowUpRight } from "lucide-react";
+import { Instagram, Linkedin, MapPin, Mail, Phone, ArrowUpRight } from "lucide-react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -12,10 +13,14 @@ export function Footer() {
         <div className="footer-top-grid">
           {/* Brand Column */}
           <div className="footer-brand-column">
-            <Link href="/" className="footer-logo">
-              <div className="brand-emblem" aria-hidden="true">
-                <Sparkles size={18} />
-              </div>
+            <Link href="/" className="footer-logo" aria-label="Digitalonix Home">
+              <Image
+                src="/logo.png"
+                alt="Digitalonix Logo"
+                width={38}
+                height={38}
+                className="brand-logo-img"
+              />
               <span>
                 Digital<span className="brand-name-accent">onix</span>
               </span>

@@ -42,6 +42,16 @@
   box-shadow: 0 2px 10px rgba(120, 29, 181, 0.4);
 }
 
+.brand-logo-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 10px rgba(120, 29, 181, 0.35);
+  flex-shrink: 0;
+  display: block;
+}
+
 .brand-name {
   display: inline-block;
 }
