@@ -31,7 +31,16 @@
   border: 1px solid var(--color-border);
   color: var(--color-text);
   cursor: pointer;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none;
+  -webkit-user-select: none;
   transition: all var(--transition-fast);
+}
+
+.carousel-nav-btn:focus,
+.carousel-nav-btn:active {
+  outline: none !important;
 }
 
 .carousel-nav-btn:hover {

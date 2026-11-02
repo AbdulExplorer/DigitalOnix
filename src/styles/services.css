@@ -23,7 +23,17 @@
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
   transition: all var(--transition-fast);
+}
+
+.category-tab-btn:focus,
+.category-tab-btn:active {
+  outline: none !important;
 }
 
 .category-tab-btn:hover {

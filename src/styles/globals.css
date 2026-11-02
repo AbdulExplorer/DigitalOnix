@@ -5,6 +5,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 html {
@@ -44,7 +45,34 @@ body::before {
   z-index: 0;
 }
 
-/* Focus Visible for Accessibility */
+/* Eliminate Mobile Tap Blue Highlight & Focus Boxes */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+[role="tab"],
+[tabindex] {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+  outline: none;
+}
+
+/* Ensure focus outline never shows on touch tap or mouse click */
+:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:focus,
+a:focus,
+[role="button"]:focus,
+[role="tab"]:focus {
+  outline: none !important;
+}
+
+/* Only display focus ring for keyboard navigation */
 :focus-visible {
   outline: 2px solid var(--color-focus-ring, var(--color-primary));
   outline-offset: 3px;
@@ -192,6 +220,19 @@ button {
   transition: all var(--transition-normal);
   text-align: center;
   white-space: nowrap;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.btn:focus {
+  outline: none !important;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring, var(--color-primary));
+  outline-offset: 3px;
 }
 
 .btn-primary {
