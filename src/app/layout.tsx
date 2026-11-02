@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+
 import "@/styles/variables.css";
+import "@/styles/themes.css";
+import "@/styles/theme-switcher.css";
 import "@/styles/animations.css";
 import "@/styles/globals.css";
 import "@/styles/header.css";
@@ -17,6 +20,7 @@ import "@/styles/pages.css";
 import { siteConfig } from "@/data/config";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 export const metadata: Metadata = {
   title: {
@@ -71,14 +75,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="modern" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Synchronously apply saved theme before DOM paint to avoid flashes */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var validThemes = ['modern', 'bold', 'editorial', 'corporate', 'futuristic'];
+                  var saved = localStorage.getItem('digitalonix_theme');
+                  if (saved && validThemes.indexOf(saved) !== -1) {
+                    document.documentElement.setAttribute('data-theme', saved);
+                  } else {
+                    document.documentElement.setAttribute('data-theme', 'modern');
+                  }
+                } catch (e) {
+                  document.documentElement.setAttribute('data-theme', 'modern');
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
         <Header />
         <main id="main-content">{children}</main>
         <Footer />
+        <ThemeSwitcher />
       </body>
     </html>
   );

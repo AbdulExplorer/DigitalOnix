@@ -36,7 +36,7 @@
   align-items: center;
   gap: var(--space-xs);
   padding: 0.4rem 1.1rem;
-  background: rgba(21, 19, 26, 0.85);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
   margin-bottom: var(--space-xl);
@@ -97,7 +97,7 @@
 }
 
 .hero-headline-accent {
-  background: linear-gradient(135deg, #B257F5 0%, #781DB5 60%, #FFFFFF 100%);
+  background: var(--gradient-headline-accent, linear-gradient(135deg, #B257F5 0%, #781DB5 60%, #FFFFFF 100%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;

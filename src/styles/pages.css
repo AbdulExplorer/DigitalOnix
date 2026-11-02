@@ -11,7 +11,7 @@
 .page-hero-title {
   font-size: clamp(2.4rem, 5vw, 4rem);
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--text-primary);
   margin-bottom: var(--space-md);
   letter-spacing: -0.03em;
 }
@@ -121,7 +121,7 @@
 .cta-banner-title {
   font-size: clamp(1.8rem, 3.5vw, 2.5rem);
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--text-primary);
   margin-bottom: var(--space-sm);
 }
 

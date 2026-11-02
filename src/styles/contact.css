@@ -134,8 +134,8 @@
 }
 
 .form-select option {
-  background-color: #15131A;
-  color: #FFFFFF;
+  background-color: var(--surface);
+  color: var(--text-primary);
 }
 
 .form-textarea {
