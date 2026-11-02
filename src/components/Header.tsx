@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/data/config";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -94,15 +94,19 @@ export function Header() {
           </div>
         </nav>
 
-        {/* Mobile Toggle Button */}
+        {/* Mobile Toggle Button with Animated Hamburger */}
         <button
-          className="mobile-toggle-btn"
+          className={`mobile-toggle-btn ${mobileMenuOpen ? "is-open" : ""}`}
           onClick={() => setMobileMenuOpen((prev) => !prev)}
           aria-expanded={mobileMenuOpen}
           aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-controls="mobile-navigation-drawer"
         >
-          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          <span className="hamburger-box" aria-hidden="true">
+            <span className="hamburger-line line-top" />
+            <span className="hamburger-line line-middle" />
+            <span className="hamburger-line line-bottom" />
+          </span>
         </button>
       </div>
 
@@ -136,11 +140,11 @@ export function Header() {
                 </span>
               </div>
               <button
+                className="mobile-drawer-close-btn"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close menu"
-                style={{ color: "var(--text-secondary)", padding: "4px" }}
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 

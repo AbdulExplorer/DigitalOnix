@@ -39,7 +39,7 @@ export default function AboutPage() {
     <div>
       {/* Page Hero */}
       <section className="page-hero">
-        <div className="container">
+        <div className="container reveal-on-scroll">
           <span className="section-tag">
             <MapPin size={13} />
             Bhopal, Madhya Pradesh
@@ -57,12 +57,12 @@ export default function AboutPage() {
       {/* Story & Heritage Section */}
       <section className="section-padding">
         <div className="container">
-          <div style={{ maxWidth: "840px", margin: "0 auto", marginBottom: "var(--space-4xl)" }}>
+          <div className="reveal-on-scroll" style={{ maxWidth: "840px", margin: "0 auto", marginBottom: "var(--space-4xl)" }}>
             <span className="section-tag">Our Origin</span>
-            <h2 style={{ fontSize: "2.4rem", color: "#FFFFFF", marginBottom: "1.5rem", lineHeight: 1.25 }}>
+            <h2 style={{ fontSize: "2.4rem", color: "var(--color-text)", marginBottom: "1.5rem", lineHeight: 1.25 }}>
               Bridging the gap between artistic ambition and quantifiable ROI.
             </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", color: "var(--text-secondary)", fontSize: "1.05rem", lineHeight: 1.75 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", color: "var(--color-text-secondary)", fontSize: "1.05rem", lineHeight: 1.75 }}>
               <p>
                 Rooted in Bhopal, Digitalonix began as a creative studio determined to redefine how brands engage modern audiences. While many traditional agencies focused purely on awards or isolated graphics, businesses were left struggling to see tangible commercial returns.
               </p>
@@ -77,7 +77,7 @@ export default function AboutPage() {
 
           {/* Agency Core Values */}
           <div style={{ marginBottom: "var(--space-4xl)" }}>
-            <div className="section-header">
+            <div className="section-header reveal-on-scroll">
               <span className="section-tag">Our Standards</span>
               <h2 className="section-title">The Principles Guiding Every Project</h2>
               <p className="section-subtitle">
@@ -87,7 +87,7 @@ export default function AboutPage() {
 
             <div className="values-grid">
               {agencyValues.map((val, idx) => (
-                <div key={idx} className="value-card">
+                <div key={idx} className={`value-card reveal-on-scroll reveal-delay-${(idx % 2) + 1}`}>
                   <div className="value-card-icon">{val.icon}</div>
                   <h3 className="value-card-title">{val.title}</h3>
                   <p className="value-card-desc">{val.desc}</p>
@@ -104,7 +104,7 @@ export default function AboutPage() {
       {/* Bottom CTA */}
       <section className="section-padding">
         <div className="container">
-          <div className="cta-banner">
+          <div className="cta-banner reveal-on-scroll">
             <h2 className="cta-banner-title">Ready to build something extraordinary?</h2>
             <p className="cta-banner-desc">
               Connect with our team to discuss how Digitalonix can elevate your brand perception and digital performance.

@@ -21,6 +21,7 @@ import { siteConfig } from "@/data/config";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export const metadata: Metadata = {
   title: {
@@ -130,6 +131,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <ScrollReveal />
         <Header />
         <main id="main-content">{children}</main>
         <Footer />

@@ -9,7 +9,7 @@ export function Founder() {
       <div className="container">
         <div className="founder-editorial-grid">
           {/* Minimalist Graphic Frame */}
-          <div className="founder-image-column">
+          <div className="founder-image-column reveal-on-scroll">
             <div className="founder-image-frame">
               <div className="founder-portrait-placeholder">
                 <div className="founder-avatar-icon" aria-hidden="true">
@@ -27,7 +27,7 @@ export function Founder() {
           </div>
 
           {/* Editorial Content Column */}
-          <div className="founder-editorial-column">
+          <div className="founder-editorial-column reveal-on-scroll reveal-delay-1">
             <span className="founder-section-tag">
               <Sparkles size={13} />
               Agency Leadership

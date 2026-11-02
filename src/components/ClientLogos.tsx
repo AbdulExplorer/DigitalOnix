@@ -75,14 +75,14 @@ export function ClientLogos() {
   return (
     <section className="logos-section" aria-label="Brand Partners">
       <div className="container">
-        <div className="logos-heading-wrap">
+        <div className="logos-heading-wrap reveal-on-scroll">
           <span className="logos-label">
             Trusted by 250+ Growing Brands
           </span>
         </div>
       </div>
 
-      <div className="marquee-outer-container">
+      <div className="marquee-outer-container reveal-on-scroll reveal-delay-1">
         <div className="marquee-inner-strip" role="list">
           {duplicatedLogos.map((client, index) => (
             <div

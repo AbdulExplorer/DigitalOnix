@@ -68,7 +68,7 @@ export function Testimonials() {
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="container">
-        <div className="testimonials-header">
+        <div className="testimonials-header reveal-on-scroll">
           <div>
             <span className="section-tag">Testimonials</span>
             <h2 className="section-title">What partners say.</h2>
@@ -95,7 +95,7 @@ export function Testimonials() {
 
       {/* Infinite Moving Loop Marquee */}
       <div
-        className="testimonials-loop-container"
+        className="testimonials-loop-container reveal-on-scroll reveal-delay-1"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >

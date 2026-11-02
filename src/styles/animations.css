@@ -75,7 +75,7 @@
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
@@ -84,7 +84,45 @@
 }
 
 .animate-fade-in {
-  animation: fade-in-up 500ms ease-out forwards;
+  animation: fade-in-up 550ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Lightweight Scroll-Driven Slide Up System (0 KB extra library, pure GPU CSS) */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  will-change: auto;
+}
+
+/* Stagger delay classes for cards and multi-element sections */
+.reveal-delay-1 { transition-delay: 80ms; }
+.reveal-delay-2 { transition-delay: 160ms; }
+.reveal-delay-3 { transition-delay: 240ms; }
+.reveal-delay-4 { transition-delay: 320ms; }
+.reveal-delay-5 { transition-delay: 400ms; }
+.reveal-delay-6 { transition-delay: 480ms; }
+
+/* Reduced Motion: instant display without any transition */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Fallback if JavaScript is disabled */
+noscript .reveal-on-scroll {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 /* Spinner for Form Submit */

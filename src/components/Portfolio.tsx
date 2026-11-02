@@ -31,7 +31,7 @@ export function Portfolio() {
   return (
     <section id="portfolio" className="portfolio-section section-padding" aria-label="Our Portfolio">
       <div className="container">
-        <div className="section-header">
+        <div className="section-header reveal-on-scroll">
           <span className="section-tag">Featured Work</span>
           <h2 className="section-title">
             Case studies, creative productions &amp; design.
@@ -42,7 +42,7 @@ export function Portfolio() {
         </div>
 
         {/* Portfolio Tabs Navigation */}
-        <div className="portfolio-tabs-nav" role="tablist" aria-label="Portfolio category filter">
+        <div className="portfolio-tabs-nav reveal-on-scroll reveal-delay-1" role="tablist" aria-label="Portfolio category filter">
           {portfolioCategories.map((category) => (
             <button
               key={category}
@@ -67,10 +67,10 @@ export function Portfolio() {
 
         {/* Portfolio Grid */}
         <div className="portfolio-grid">
-          {displayedItems.map((item) => (
+          {displayedItems.map((item, idx) => (
             <article
               key={item.id}
-              className="portfolio-card"
+              className={`portfolio-card reveal-on-scroll reveal-delay-${(idx % 3) + 1}`}
               onClick={() => setSelectedModalItem(item)}
               role="button"
               tabIndex={0}

@@ -15,7 +15,7 @@ export default function PortfolioPage() {
     <div>
       {/* Page Hero */}
       <section className="page-hero">
-        <div className="container">
+        <div className="container reveal-on-scroll">
           <span className="section-tag">
             <Sparkles size={13} />
             Our Work
@@ -36,7 +36,7 @@ export default function PortfolioPage() {
       {/* Bottom CTA */}
       <section className="section-padding">
         <div className="container">
-          <div className="cta-banner">
+          <div className="cta-banner reveal-on-scroll">
             <h2 className="cta-banner-title">Have a specific creative vision in mind?</h2>
             <p className="cta-banner-desc">
               Whether you need high-retention social content or a complete brand overhaul, we engineer custom solutions designed for your market.

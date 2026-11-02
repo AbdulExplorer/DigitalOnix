@@ -118,7 +118,7 @@ export function ContactForm() {
       <div className="container">
         <div className="quote-layout-grid">
           {/* Info Column */}
-          <div className="quote-info-column">
+          <div className="quote-info-column reveal-on-scroll">
             <span className="section-tag">Contact</span>
             <h2 className="section-title">
               Let&apos;s build something exceptional.
@@ -144,7 +144,7 @@ export function ContactForm() {
           </div>
 
           {/* Clean Form Card */}
-          <div className="quote-form-card">
+          <div className="quote-form-card reveal-on-scroll reveal-delay-1">
             <div className="quote-form-header">
               <h3 className="quote-form-title">Get a Quote</h3>
               <p className="quote-form-desc">

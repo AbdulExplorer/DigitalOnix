@@ -95,7 +95,7 @@ export function Statistics() {
       <div className="container">
         <div className="intro-stats-grid">
           {/* Introduction Column */}
-          <div className="intro-text-column">
+          <div className="intro-text-column reveal-on-scroll">
             <span className="intro-badge">
               <MapPin size={13} />
               {siteConfig.locationDisplay}
@@ -110,8 +110,11 @@ export function Statistics() {
 
           {/* Statistics Column */}
           <div className="stats-cards-wrapper">
-            {agencyStats.map((stat) => (
-              <div key={stat.id} className="stat-card">
+            {agencyStats.map((stat, idx) => (
+              <div
+                key={stat.id}
+                className={`stat-card reveal-on-scroll reveal-delay-${idx + 1}`}
+              >
                 <div className="stat-content">
                   <div className="stat-number-wrapper">
                     {stat.prefix && <span>{stat.prefix}</span>}

@@ -62,25 +62,25 @@ export function Services() {
   return (
     <section id="services" className="services-section section-padding" aria-label="Our Agency Services">
       <div className="container">
-        <div className="section-header">
+        <div className="section-header reveal-on-scroll">
           <span className="section-tag">Agency Capabilities</span>
           <h2 className="section-title">
             Integrated services engineered for market leadership.
           </h2>
           <p className="section-subtitle">
-            Ten focused practices spanning growth marketing, cinematic production, bespoke software, and local visibility.
+            Comprehensive practices spanning growth marketing, cinematic production, bespoke software, and local visibility.
           </p>
         </div>
 
         {/* Category Filter Navigation */}
-        <div className="category-filter-nav" role="tablist" aria-label="Services categories filter">
+        <div className="category-filter-nav reveal-on-scroll reveal-delay-1" role="tablist" aria-label="Services categories filter">
           <button
             className={`category-tab-btn ${selectedCategory === "All Categories" ? "active" : ""}`}
             onClick={() => setSelectedCategory("All Categories")}
             role="tab"
             aria-selected={selectedCategory === "All Categories"}
           >
-            All Services (10)
+            All Services ({servicesData.length})
           </button>
           {serviceCategories.map((category) => (
             <button
@@ -97,8 +97,11 @@ export function Services() {
 
         {/* Services Card Grid */}
         <div className="services-grid">
-          {filteredServices.map((service) => (
-            <article key={service.id} className="service-card">
+          {filteredServices.map((service, idx) => (
+            <article
+              key={service.id}
+              className={`service-card reveal-on-scroll reveal-delay-${(idx % 3) + 1}`}
+            >
               <div className="service-card-top">
                 <div className="service-icon-wrap" aria-hidden="true">
                   {renderIcon(service.iconName)}

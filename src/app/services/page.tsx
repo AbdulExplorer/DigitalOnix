@@ -85,7 +85,7 @@ export default function ServicesPage() {
     <div>
       {/* Page Hero */}
       <section className="page-hero">
-        <div className="container">
+        <div className="container reveal-on-scroll">
           <span className="section-tag">
             <Sparkles size={13} />
             Agency Capabilities
@@ -111,9 +111,9 @@ export default function ServicesPage() {
             const catServices = servicesData.filter((s) => s.category === catName);
             return (
               <div key={catName} style={{ marginBottom: "var(--space-4xl)" }}>
-                <div style={{ marginBottom: "var(--space-xl)" }}>
+                <div className="reveal-on-scroll" style={{ marginBottom: "var(--space-xl)" }}>
                   <span className="section-tag">{catName}</span>
-                  <h2 style={{ fontSize: "2rem", color: "#FFFFFF", marginTop: "0.25rem" }}>
+                  <h2 style={{ fontSize: "2rem", color: "var(--color-text)", marginTop: "0.25rem" }}>
                     {catName === "Marketing & Growth" && "Accelerate Market Reach & Revenue Funnels"}
                     {catName === "Creative Production" && "High-Retention Visual Storytelling & PR"}
                     {catName === "Technology" && "Modern Web, Software & AI Automation"}
@@ -122,8 +122,11 @@ export default function ServicesPage() {
                 </div>
 
                 <div className="services-grid">
-                  {catServices.map((service) => (
-                    <article key={service.id} className="service-card">
+                  {catServices.map((service, idx) => (
+                    <article
+                      key={service.id}
+                      className={`service-card reveal-on-scroll reveal-delay-${(idx % 3) + 1}`}
+                    >
                       <div className="service-card-top">
                         <div className="service-icon-wrap" aria-hidden="true">
                           {renderIcon(service.iconName)}
@@ -135,12 +138,12 @@ export default function ServicesPage() {
                       <p className="service-description">{service.detailedDescription}</p>
 
                       <div style={{ marginBottom: "1rem" }}>
-                        <strong style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "#FFFFFF", letterSpacing: "0.05em", display: "block", marginBottom: "0.5rem" }}>
+                        <strong style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "var(--color-text)", letterSpacing: "0.05em", display: "block", marginBottom: "0.5rem" }}>
                           Core Deliverables:
                         </strong>
                         <ul className="service-features-list" style={{ borderTop: "none", paddingTop: 0 }}>
-                          {service.deliverables.map((deliv, idx) => (
-                            <li key={idx} className="service-feature-item">
+                          {service.deliverables.map((deliv, dIdx) => (
+                            <li key={dIdx} className="service-feature-item">
                               <Check className="service-feature-check" />
                               <span>{deliv}</span>
                             </li>
@@ -167,7 +170,7 @@ export default function ServicesPage() {
 
           {/* 4-Phase Agency Workflow */}
           <div style={{ marginTop: "var(--space-4xl)" }}>
-            <div className="section-header">
+            <div className="section-header reveal-on-scroll">
               <span className="section-tag">Methodology</span>
               <h2 className="section-title">The Digitalonix Execution Blueprint</h2>
               <p className="section-subtitle">
@@ -176,8 +179,11 @@ export default function ServicesPage() {
             </div>
 
             <div className="process-grid">
-              {executionSteps.map((step) => (
-                <div key={step.step} className="process-step-card">
+              {executionSteps.map((step, idx) => (
+                <div
+                  key={step.step}
+                  className={`process-step-card reveal-on-scroll reveal-delay-${(idx % 4) + 1}`}
+                >
                   <div className="process-step-number">{step.step}</div>
                   <h3 className="process-step-title">{step.title}</h3>
                   <p className="process-step-desc">{step.desc}</p>
@@ -187,7 +193,7 @@ export default function ServicesPage() {
           </div>
 
           {/* CTA Banner */}
-          <div className="cta-banner">
+          <div className="cta-banner reveal-on-scroll">
             <h2 className="cta-banner-title">Need a custom enterprise solution?</h2>
             <p className="cta-banner-desc">
               Schedule a direct consultation with our senior strategy team to map out an omnichannel campaign tailored to your industry.
