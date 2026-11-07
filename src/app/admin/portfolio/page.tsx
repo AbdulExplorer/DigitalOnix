@@ -252,9 +252,51 @@ export default function AdminPortfolioPage() {
                 filteredProjects.map((p) => (
                   <tr key={p.id}>
                     <td>
-                      <div className="admin-td-primary">{p.title}</div>
-                      <div style={{ fontSize: "0.75rem", color: "var(--adm-text-muted)" }}>
-                        Client: {p.client} • {p.subcategory}
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        {p.thumbnailUrl ? (
+                          <div
+                            style={{
+                              width: "42px",
+                              height: "42px",
+                              borderRadius: "6px",
+                              overflow: "hidden",
+                              backgroundColor: "#000",
+                              flexShrink: 0,
+                              border: "1px solid var(--adm-border)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              position: "relative",
+                            }}
+                          >
+                            {p.thumbnailUrl.match(/\.(mp4|webm|mov|m4v|ogg)($|\?)/i) || (p.mediaType === "video" && !p.thumbnailUrl.match(/\.(jpg|jpeg|png|webp|svg)($|\?)/i)) ? (
+                              <>
+                                <video
+                                  src={p.thumbnailUrl}
+                                  muted
+                                  playsInline
+                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.35)" }}>
+                                  <Film size={14} style={{ color: "#FFF" }} />
+                                </div>
+                              </>
+                            ) : (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={p.thumbnailUrl}
+                                alt={p.title}
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              />
+                            )}
+                          </div>
+                        ) : null}
+                        <div>
+                          <div className="admin-td-primary">{p.title}</div>
+                          <div style={{ fontSize: "0.75rem", color: "var(--adm-text-muted)" }}>
+                            Client: {p.client} • {p.subcategory}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td>
@@ -442,14 +484,24 @@ export default function AdminPortfolioPage() {
             )}
           </div>
 
-          {/* Image Uploader */}
+          {/* Media Uploader (Images or Video files) */}
           <AdminImageUploader
-            label="Project Thumbnail & Cover Image"
+            label={formData.mediaType === "video" ? "Project Video File (MP4, WebM, MOV) or Media URL" : "Project Cover Image (PNG, JPG, WEBP)"}
             currentImageUrl={formData.thumbnailUrl}
             onImageChange={(url) => setFormData({ ...formData, thumbnailUrl: url })}
-            helperText="Upload 16:9 or 9:16 promotional image/graphic"
+            helperText={
+              formData.mediaType === "video"
+                ? "Upload commercial MP4/WebM/MOV video (automatically stored in Supabase & auto-detects duration) or paste a video URL."
+                : "Upload 16:9 or 9:16 promotional image/graphic"
+            }
             maxDimension={1200}
             folder="portfolio"
+            allowVideo={formData.mediaType === "video"}
+            onDurationDetected={(dur) => {
+              if (!formData.videoDuration) {
+                setFormData((prev) => ({ ...prev, videoDuration: dur }));
+              }
+            }}
           />
 
           {/* Dynamic Metrics Row */}

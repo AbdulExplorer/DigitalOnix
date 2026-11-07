@@ -324,6 +324,7 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           quote: row.quote,
           rating: row.rating || 5,
           status: row.status || "published",
+          videoUrl: row.video_url || undefined,
           createdAt: row.created_at?.split("T")[0] || "2026-10-20",
         }));
         setTestimonials(mapped);
@@ -653,7 +654,7 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
 
     if (supabase) {
       try {
-        const { error } = await supabase.from("testimonials").insert({
+        const payload: any = {
           id: newId,
           author: item.author,
           role: item.role,
@@ -661,9 +662,16 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           quote: item.quote,
           rating: item.rating || 5,
           status: item.status || "published",
-        });
+        };
+        if (item.videoUrl) payload.video_url = item.videoUrl;
+
+        const { error } = await supabase.from("testimonials").insert(payload);
         if (error) {
-          console.error("Supabase insert error (testimonials):", error.message);
+          if (error.code === "42703" && payload.video_url) {
+            delete payload.video_url;
+            await supabase.from("testimonials").insert(payload);
+          }
+          console.error("Supabase insert notice (testimonials):", error.message);
         }
       } catch (err) {
         console.warn("Could not insert testimonial to Supabase:", err);
@@ -676,9 +684,22 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
 
     if (supabase) {
       try {
-        const { error } = await supabase.from("testimonials").update(updates).eq("id", id);
+        const dbUpdates: any = {};
+        if (updates.author !== undefined) dbUpdates.author = updates.author;
+        if (updates.role !== undefined) dbUpdates.role = updates.role;
+        if (updates.company !== undefined) dbUpdates.company = updates.company;
+        if (updates.quote !== undefined) dbUpdates.quote = updates.quote;
+        if (updates.rating !== undefined) dbUpdates.rating = updates.rating;
+        if (updates.status !== undefined) dbUpdates.status = updates.status;
+        if (updates.videoUrl !== undefined) dbUpdates.video_url = updates.videoUrl;
+
+        const { error } = await supabase.from("testimonials").update(dbUpdates).eq("id", id);
         if (error) {
-          console.error("Supabase update error (testimonials):", error.message);
+          if (error.code === "42703" && dbUpdates.video_url !== undefined) {
+            delete dbUpdates.video_url;
+            await supabase.from("testimonials").update(dbUpdates).eq("id", id);
+          }
+          console.error("Supabase update notice (testimonials):", error.message);
         }
       } catch (err) {
         console.warn("Could not update testimonial in Supabase:", err);

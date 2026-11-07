@@ -55,6 +55,7 @@ export interface AdminTestimonial {
   quote: string;
   rating: number; // 1 to 5
   status: "published" | "pending";
+  videoUrl?: string;
   createdAt: string;
 }
 

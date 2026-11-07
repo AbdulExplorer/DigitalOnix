@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { UploadCloud, Image as ImageIcon, X, Link as LinkIcon, Check, Loader2 } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
+import { UploadCloud, Image as ImageIcon, Video as VideoIcon, X, Link as LinkIcon, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 
 interface AdminImageUploaderProps {
@@ -11,6 +11,17 @@ interface AdminImageUploaderProps {
   helperText?: string;
   maxDimension?: number;
   folder?: string;
+  allowVideo?: boolean;
+  onDurationDetected?: (duration: string) => void;
+}
+
+function isVideoSource(urlOrName?: string | null): boolean {
+  if (!urlOrName) return false;
+  return (
+    urlOrName.startsWith("data:video") ||
+    /\.(mp4|webm|mov|m4v|ogg)($|\?)/i.test(urlOrName) ||
+    urlOrName.includes("video/")
+  );
 }
 
 /**
@@ -83,15 +94,16 @@ async function compressImageClient(file: File, maxDim = 400, quality = 0.85): Pr
 async function uploadToSupabaseBucket(file: File, folder: string): Promise<string | null> {
   if (!supabase) return null;
   try {
-    const fileExt = file.name.split(".").pop() || "png";
+    const fileExt = file.name.split(".").pop() || (file.type.startsWith("video/") ? "mp4" : "png");
     const cleanFileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
     const filePath = `${folder}/${cleanFileName}`;
 
-    const candidateBuckets = ["client-logos", "assets", "public-assets", "public"];
+    const candidateBuckets = ["assets", "client-logos", "public-assets", "public"];
     for (const bucket of candidateBuckets) {
       const { data, error } = await supabase.storage.from(bucket).upload(filePath, file, {
         cacheControl: "31536000",
         upsert: true,
+        contentType: file.type || (fileExt === "mp4" ? "video/mp4" : undefined),
       });
 
       if (!error && data?.path) {
@@ -114,6 +126,8 @@ export function AdminImageUploader({
   helperText = "PNG, SVG, JPG, or WEBP. Automatically optimized to < 40KB.",
   maxDimension = 400,
   folder = "clients",
+  allowVideo = false,
+  onDurationDetected,
 }: AdminImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
@@ -122,16 +136,50 @@ export function AdminImageUploader({
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState("");
 
+  useEffect(() => {
+    setPreview(currentImageUrl || null);
+  }, [currentImageUrl]);
+
   const processAndUploadFile = async (file: File) => {
-    if (!file.type.startsWith("image/") && file.type !== "image/svg+xml") {
-      alert("Please upload a valid image file (PNG, JPG, SVG, or WEBP).");
+    const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
+    const isImage = file.type.startsWith("image/") || file.type === "image/svg+xml";
+
+    if (!isImage && !isVideo) {
+      alert("Please upload a valid image (PNG, JPG, SVG, WEBP) or video file (MP4, WebM, MOV).");
+      return;
+    }
+
+    if (isVideo && !allowVideo) {
+      alert("Video upload is only supported when Media Type is set to Video. Please upload an image.");
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      // 1. Try uploading to Supabase Storage bucket first
+      // 1. If video, auto-detect duration
+      if (isVideo && onDurationDetected && typeof window !== "undefined") {
+        try {
+          const tempUrl = URL.createObjectURL(file);
+          const tempVid = document.createElement("video");
+          tempVid.preload = "metadata";
+          tempVid.onloadedmetadata = () => {
+            URL.revokeObjectURL(tempUrl);
+            const totalSecs = Math.round(tempVid.duration);
+            if (!isNaN(totalSecs) && totalSecs > 0) {
+              const mins = Math.floor(totalSecs / 60);
+              const secs = totalSecs % 60;
+              const formatted = `${mins}:${secs.toString().padStart(2, "0")}`;
+              onDurationDetected(formatted);
+            }
+          };
+          tempVid.src = tempUrl;
+        } catch (durErr) {
+          console.warn("Could not read video duration:", durErr);
+        }
+      }
+
+      // 2. Upload to Supabase Storage bucket
       const cloudUrl = await uploadToSupabaseBucket(file, folder);
 
       if (cloudUrl) {
@@ -141,13 +189,26 @@ export function AdminImageUploader({
         return;
       }
 
-      // 2. Fallback to client-side compressed & resized data URL
-      const compressedDataUrl = await compressImageClient(file, maxDimension);
-      setPreview(compressedDataUrl);
-      onImageChange(compressedDataUrl);
+      // 3. Fallback handling
+      if (isVideo) {
+        if (file.size <= 25 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const res = e.target?.result as string;
+            setPreview(res);
+            onImageChange(res);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("Video exceeds 25MB. Please paste a cloud video URL or ensure network connection.");
+        }
+      } else {
+        const compressedDataUrl = await compressImageClient(file, maxDimension);
+        setPreview(compressedDataUrl);
+        onImageChange(compressedDataUrl);
+      }
     } catch (err) {
-      console.error("Image processing error:", err);
-      // Fallback raw read
+      console.error("Media processing error:", err);
       const reader = new FileReader();
       reader.onload = (e) => {
         const res = e.target?.result as string;
@@ -207,7 +268,7 @@ export function AdminImageUploader({
           }}
         >
           <LinkIcon size={12} />
-          <span>{showUrlInput ? "Upload File" : "Paste Image URL"}</span>
+          <span>{showUrlInput ? "Upload File" : "Paste Media URL"}</span>
         </button>
       </div>
 
@@ -216,7 +277,7 @@ export function AdminImageUploader({
           <input
             type="url"
             className="adm-input"
-            placeholder="https://example.com/logo.png"
+            placeholder={allowVideo ? "https://example.com/video.mp4" : "https://example.com/image.png"}
             value={urlInputValue}
             onChange={(e) => setUrlInputValue(e.target.value)}
             style={{ fontSize: "0.82rem" }}
@@ -239,13 +300,22 @@ export function AdminImageUploader({
         >
           <Loader2 size={24} className="adm-spin" style={{ color: "var(--adm-primary)", marginBottom: "0.5rem" }} />
           <span style={{ fontSize: "0.82rem", color: "var(--adm-text-secondary)" }}>
-            Optimizing and compressing asset...
+            Uploading and optimizing media asset...
           </span>
         </div>
       ) : preview ? (
-        <div className="adm-image-preview-box" style={{ position: "relative" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="Upload preview" style={{ maxHeight: "120px", objectFit: "contain" }} />
+        <div className="adm-image-preview-box" style={{ position: "relative", backgroundColor: "#000000", minHeight: "140px" }}>
+          {isVideoSource(preview) ? (
+            <video
+              src={preview}
+              controls
+              playsInline
+              style={{ maxHeight: "160px", maxWidth: "100%", objectFit: "contain", borderRadius: "var(--adm-radius-md)" }}
+            />
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={preview} alt="Upload preview" style={{ maxHeight: "140px", objectFit: "contain" }} />
+          )}
           <button
             type="button"
             onClick={handleRemove}
@@ -256,8 +326,9 @@ export function AdminImageUploader({
               right: "8px",
               backgroundColor: "rgba(13, 13, 18, 0.85)",
               backdropFilter: "blur(4px)",
+              zIndex: 10,
             }}
-            title="Remove image"
+            title="Remove media"
           >
             <X size={14} />
           </button>
@@ -272,9 +343,12 @@ export function AdminImageUploader({
               backgroundColor: preview.startsWith("http") ? "rgba(16, 185, 129, 0.2)" : "rgba(139, 61, 255, 0.2)",
               color: preview.startsWith("http") ? "#34D399" : "var(--adm-primary)",
               border: `1px solid ${preview.startsWith("http") ? "rgba(16, 185, 129, 0.3)" : "rgba(139, 61, 255, 0.3)"}`,
+              zIndex: 10,
             }}
           >
-            {preview.startsWith("http") ? "Cloud URL" : "Optimized Asset (< 40KB)"}
+            {isVideoSource(preview)
+              ? (preview.startsWith("http") ? "Video Media (Supabase Cloud)" : "Video File Loaded")
+              : (preview.startsWith("http") ? "Cloud URL" : "Optimized Asset (< 40KB)")}
           </div>
         </div>
       ) : (
@@ -293,14 +367,16 @@ export function AdminImageUploader({
             type="file"
             ref={fileInputRef}
             onChange={(e) => e.target.files?.[0] && processAndUploadFile(e.target.files[0])}
-            accept="image/*,.svg"
+            accept={allowVideo ? "image/*,video/*,.mp4,.webm,.mov,.m4v,.ogg,.svg" : "image/*,.svg"}
             style={{ display: "none" }}
           />
           <div className="adm-upload-icon">
-            <UploadCloud size={20} />
+            {allowVideo ? <VideoIcon size={20} /> : <UploadCloud size={20} />}
           </div>
           <div>
-            <div className="adm-upload-text">Click to upload or drag & drop</div>
+            <div className="adm-upload-text">
+              {allowVideo ? "Click to upload video or graphic, or drag & drop" : "Click to upload or drag & drop"}
+            </div>
             <div className="adm-upload-hint">{helperText}</div>
           </div>
         </div>

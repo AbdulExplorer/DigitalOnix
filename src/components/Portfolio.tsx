@@ -100,11 +100,24 @@ export function Portfolio() {
                 <div className={`portfolio-visual-container aspect-${(item.aspectRatio || "16/9").replace("/", "-")}`}>
                   {item.thumbnailUrl ? (
                     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
-                      <img
-                        src={item.thumbnailUrl}
-                        alt={item.title}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
+                      {item.thumbnailUrl.match(/\.(mp4|webm|mov|m4v|ogg)($|\?)/i) || (item.mediaType === "video" && !item.thumbnailUrl.match(/\.(jpg|jpeg|png|webp|svg)($|\?)/i)) ? (
+                        <video
+                          src={item.thumbnailUrl}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={item.thumbnailUrl}
+                          alt={item.title}
+                          loading="lazy"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      )}
                       {item.mediaType === "video" && (
                         <div className="portfolio-play-overlay">
                           <Play size={22} fill="currentColor" />
@@ -184,6 +197,28 @@ export function Portfolio() {
             >
               <X size={18} />
             </button>
+
+            {/* Media Showcase (Video Player or Cover Image) */}
+            {selectedModalItem.thumbnailUrl && (
+              <div style={{ width: "100%", maxHeight: "360px", borderRadius: "10px", overflow: "hidden", marginBottom: "1.25rem", backgroundColor: "#000", border: "1px solid var(--border-light)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {selectedModalItem.thumbnailUrl.match(/\.(mp4|webm|mov|m4v|ogg)($|\?)/i) || (selectedModalItem.mediaType === "video" && !selectedModalItem.thumbnailUrl.match(/\.(jpg|jpeg|png|webp|svg)($|\?)/i)) ? (
+                  <video
+                    src={selectedModalItem.thumbnailUrl}
+                    controls
+                    autoPlay
+                    playsInline
+                    style={{ width: "100%", maxHeight: "360px", objectFit: "contain" }}
+                  />
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={selectedModalItem.thumbnailUrl}
+                    alt={selectedModalItem.title}
+                    style={{ width: "100%", maxHeight: "360px", objectFit: "cover" }}
+                  />
+                )}
+              </div>
+            )}
 
             <span className="section-tag" style={{ marginBottom: "0.75rem" }}>
               {selectedModalItem.category} • {selectedModalItem.subcategory}

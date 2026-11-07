@@ -49,9 +49,13 @@ create table if not exists public.testimonials (
   company text not null,
   quote text not null,
   rating int default 5,
+  video_url text,
   status text default 'published' check (status in ('published', 'pending')),
   created_at timestamptz default now()
 );
+
+-- Ensure video_url column exists if table already created
+alter table public.testimonials add column if not exists video_url text;
 
 -- Clients Table
 create table if not exists public.clients (

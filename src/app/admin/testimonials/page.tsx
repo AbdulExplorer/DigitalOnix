@@ -9,12 +9,15 @@ import {
   Star,
   Quote,
   CheckCircle2,
+  Film,
+  Video,
 } from "lucide-react";
 import { useAdminData } from "@/context/AdminDataContext";
 import { useToast } from "@/context/AdminToastContext";
 import { AdminTestimonial } from "@/types/admin";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { AdminDeleteConfirm } from "@/components/admin/AdminDeleteConfirm";
+import { AdminImageUploader } from "@/components/admin/AdminImageUploader";
 
 const INITIAL_TESTIMONIAL_STATE = {
   author: "",
@@ -23,6 +26,7 @@ const INITIAL_TESTIMONIAL_STATE = {
   quote: "",
   rating: 5,
   status: "published" as "published" | "pending",
+  videoUrl: "",
 };
 
 export default function AdminTestimonialsPage() {
@@ -58,6 +62,7 @@ export default function AdminTestimonialsPage() {
       quote: item.quote,
       rating: item.rating || 5,
       status: item.status,
+      videoUrl: item.videoUrl || "",
     });
     setIsModalOpen(true);
   };
@@ -78,6 +83,7 @@ export default function AdminTestimonialsPage() {
         quote: formData.quote,
         rating: formData.rating,
         status: formData.status,
+        videoUrl: formData.videoUrl || undefined,
       });
       showToast(`Updated testimonial from ${formData.author}`, "success");
     } else {
@@ -88,6 +94,7 @@ export default function AdminTestimonialsPage() {
         quote: formData.quote,
         rating: formData.rating,
         status: formData.status,
+        videoUrl: formData.videoUrl || undefined,
       });
       showToast(`Added testimonial from ${formData.author}`, "success");
     }
@@ -151,7 +158,28 @@ export default function AdminTestimonialsPage() {
                 filteredTestimonials.map((t) => (
                   <tr key={t.id}>
                     <td>
-                      <div className="admin-td-primary">{t.author}</div>
+                      <div className="admin-td-primary" style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                        <span>{t.author}</span>
+                        {t.videoUrl ? (
+                          <span
+                            title="Video testimonial attached"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.25rem",
+                              fontSize: "0.68rem",
+                              padding: "0.15rem 0.45rem",
+                              borderRadius: "4px",
+                              backgroundColor: "rgba(139, 61, 255, 0.15)",
+                              color: "var(--adm-primary)",
+                              border: "1px solid rgba(139, 61, 255, 0.25)",
+                            }}
+                          >
+                            <Video size={11} />
+                            <span>Video</span>
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td>
                       <div style={{ fontSize: "0.8rem", color: "var(--adm-text-secondary)" }}>{t.role}</div>
@@ -305,6 +333,16 @@ export default function AdminTestimonialsPage() {
               <option value="pending">Pending (Hidden)</option>
             </select>
           </div>
+
+          {/* Video Testimonial Upload */}
+          <AdminImageUploader
+            label="Client Video Testimonial / Story Clip (Optional)"
+            currentImageUrl={formData.videoUrl}
+            onImageChange={(url) => setFormData({ ...formData, videoUrl: url })}
+            helperText="Upload client video review (MP4, WebM, MOV) or paste video URL. Displayed above the quote card."
+            folder="testimonials"
+            allowVideo={true}
+          />
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", paddingTop: "1rem", borderTop: "1px solid var(--adm-border)" }}>
             <button
