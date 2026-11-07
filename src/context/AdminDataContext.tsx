@@ -10,10 +10,6 @@ import {
   AdminSiteContent,
   EnquiryStatus,
 } from "@/types/admin";
-import { portfolioItems } from "@/data/portfolio";
-import { servicesData } from "@/data/services";
-import { testimonialsData } from "@/data/testimonials";
-import { clientLogos } from "@/data/clients";
 import { siteConfig } from "@/data/config";
 import { supabase } from "@/lib/supabase-client";
 
@@ -52,7 +48,7 @@ export interface AdminDataContextType {
   content: AdminSiteContent;
   updateContent: (newContent: Partial<AdminSiteContent>) => Promise<void>;
 
-  // Real-time Dynamic Statistics
+  // Real-time Dynamic Statistics (strictly reflects Supabase data)
   stats: {
     totalProjects: number;
     publishedProjects: number;
@@ -83,86 +79,25 @@ function generateUUID(): string {
   });
 }
 
-// Seed Initial Projects
-const initialProjects: AdminProject[] = portfolioItems.map((item, idx) => ({
-  id: item.id,
-  title: item.title,
-  category: item.category,
-  subcategory: item.subcategory,
-  client: item.clientLabel,
-  clientLabel: item.clientLabel,
-  summary: item.summary,
-  description: item.strategy || item.summary,
-  projectUrl: "https://digitalonix.in/portfolio",
-  status: idx % 6 === 5 ? "draft" : "published",
-  mediaType: item.mediaType,
-  videoDuration: item.videoDuration,
-  aspectRatio: item.aspectRatio,
-  accentColor: item.accentColor,
-  metrics: item.metrics,
-  createdAt: "2026-10-15",
-  updatedAt: "2026-11-01",
-}));
+// Check and purge legacy hardcoded mock IDs so old browser caches are 100% clean
+function isLegacyMockId(id: string): boolean {
+  return (
+    id.startsWith("client-") ||
+    id.startsWith("p-") ||
+    id.startsWith("svc-0") ||
+    id.startsWith("test-") ||
+    id.startsWith("enq-10")
+  );
+}
 
-// Seed Initial Services
-const initialServices: AdminService[] = servicesData.map((svc) => ({
-  id: svc.id,
-  title: svc.title,
-  category: svc.category,
-  shortDescription: svc.shortDescription,
-  detailedDescription: svc.detailedDescription,
-  iconName: svc.iconName,
-  features: svc.features,
-  deliverables: svc.deliverables,
-  status: "active",
-}));
+// Initial Collections: All Empty (Strictly data from Supabase only!)
+const initialProjects: AdminProject[] = [];
+const initialServices: AdminService[] = [];
+const initialTestimonials: AdminTestimonial[] = [];
+const initialClients: AdminClient[] = [];
+const initialEnquiries: AdminEnquiry[] = [];
 
-// Seed Initial Testimonials
-const initialTestimonials: AdminTestimonial[] = testimonialsData.map((test) => ({
-  id: test.id,
-  author: test.author,
-  role: test.role,
-  company: "Brand Partner",
-  quote: test.quote,
-  rating: 5,
-  status: "published",
-  createdAt: "2026-10-20",
-}));
-
-// Seed Initial Clients
-const initialClients: AdminClient[] = clientLogos.map((client) => ({
-  id: client.id,
-  name: client.name,
-  industry: client.industry,
-  symbol: client.symbol,
-  status: "active",
-}));
-
-// Seed Initial Enquiries
-const initialEnquiries: AdminEnquiry[] = [
-  {
-    id: "enq-101",
-    name: "Vikram Malhotra",
-    email: "vikram@malhotratech.com",
-    phone: "+91 98260 12345",
-    service: "Paid Advertising (Meta & Google Ads)",
-    message: "We need comprehensive performance marketing to generate qualified B2B enterprise leads for our SaaS platform.",
-    status: "new",
-    submittedAt: "2026-11-03 09:30 AM",
-  },
-  {
-    id: "enq-102",
-    name: "Ananya Mehta",
-    email: "ananya@kavitajewellers.com",
-    phone: "+91 94250 88990",
-    service: "Commercial Video Production & Reels",
-    message: "Looking for a creative agency to shoot a high-end festive jewelry video campaign in Bhopal studio.",
-    status: "new",
-    submittedAt: "2026-11-02 04:15 PM",
-  },
-];
-
-// Seed Initial Content
+// Base Content Template
 const initialContent: AdminSiteContent = {
   hero: {
     headlinePrefix: "We Make",
@@ -213,24 +148,39 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 1. Immediately restore saved items from localStorage
+  // 1. Immediately restore saved items from localStorage, purging any legacy mock seed data
   const restoreFromLocalStorage = useCallback(() => {
     if (typeof window === "undefined") return;
     try {
       const savedProjects = localStorage.getItem(`${STORAGE_PREFIX}projects`);
-      if (savedProjects) setProjects(JSON.parse(savedProjects));
+      if (savedProjects) {
+        const parsed: AdminProject[] = JSON.parse(savedProjects);
+        setProjects(parsed.filter((item) => !isLegacyMockId(item.id)));
+      }
 
       const savedServices = localStorage.getItem(`${STORAGE_PREFIX}services`);
-      if (savedServices) setServices(JSON.parse(savedServices));
+      if (savedServices) {
+        const parsed: AdminService[] = JSON.parse(savedServices);
+        setServices(parsed.filter((item) => !isLegacyMockId(item.id)));
+      }
 
       const savedTestimonials = localStorage.getItem(`${STORAGE_PREFIX}testimonials`);
-      if (savedTestimonials) setTestimonials(JSON.parse(savedTestimonials));
+      if (savedTestimonials) {
+        const parsed: AdminTestimonial[] = JSON.parse(savedTestimonials);
+        setTestimonials(parsed.filter((item) => !isLegacyMockId(item.id)));
+      }
 
       const savedClients = localStorage.getItem(`${STORAGE_PREFIX}clients`);
-      if (savedClients) setClients(JSON.parse(savedClients));
+      if (savedClients) {
+        const parsed: AdminClient[] = JSON.parse(savedClients);
+        setClients(parsed.filter((item) => !isLegacyMockId(item.id)));
+      }
 
       const savedEnquiries = localStorage.getItem(`${STORAGE_PREFIX}enquiries`);
-      if (savedEnquiries) setEnquiries(JSON.parse(savedEnquiries));
+      if (savedEnquiries) {
+        const parsed: AdminEnquiry[] = JSON.parse(savedEnquiries);
+        setEnquiries(parsed.filter((item) => !isLegacyMockId(item.id)));
+      }
 
       const savedContent = localStorage.getItem(`${STORAGE_PREFIX}content`);
       if (savedContent) setContent(JSON.parse(savedContent));
@@ -239,7 +189,7 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // 2. Fetch live data from Supabase aligned with exact user schema
+  // 2. Fetch live data strictly from Supabase
   const fetchSupabaseData = useCallback(async () => {
     if (!supabase) return;
 
@@ -248,12 +198,12 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
         supabase.from("projects").select("*").order("created_at", { ascending: false }),
         supabase.from("services").select("*").order("sort_order", { ascending: true }),
         supabase.from("testimonials").select("*").order("created_at", { ascending: false }),
-        supabase.from("clients").select("*"),
+        supabase.from("clients").select("*").order("name", { ascending: true }),
         supabase.from("enquiries").select("*").order("submitted_at", { ascending: false }),
         supabase.from("site_content").select("*").eq("key", "main").maybeSingle(),
       ]);
 
-      // 1. Projects Smart Merge (Preserves locally added projects)
+      // 1. Projects (From Supabase Only)
       if (projRes.status === "fulfilled" && projRes.value.data) {
         const mapped: AdminProject[] = projRes.value.data.map((row: any) => ({
           id: row.id,
@@ -274,20 +224,13 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           createdAt: row.created_at?.split("T")[0] || "2026-10-15",
           updatedAt: row.updated_at?.split("T")[0] || "2026-11-01",
         }));
-
-        setProjects((prev) => {
-          if (mapped.length === 0) return prev;
-          const remoteIds = new Set(mapped.map((p) => p.id));
-          const localOnly = prev.filter((p) => !remoteIds.has(p.id));
-          const merged = [...mapped, ...localOnly];
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}projects`, JSON.stringify(merged));
-          } catch {}
-          return merged;
-        });
+        setProjects(mapped);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}projects`, JSON.stringify(mapped));
+        } catch {}
       }
 
-      // 2. Services Smart Merge (using sort_order)
+      // 2. Services (From Supabase Only)
       if (svcRes.status === "fulfilled" && svcRes.value.data) {
         const mapped: AdminService[] = svcRes.value.data.map((row: any) => ({
           id: row.id,
@@ -301,20 +244,13 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           status: row.status || "active",
           order: row.sort_order ?? 0,
         }));
-
-        setServices((prev) => {
-          if (mapped.length === 0) return prev;
-          const remoteIds = new Set(mapped.map((s) => s.id));
-          const localOnly = prev.filter((s) => !remoteIds.has(s.id));
-          const merged = [...mapped, ...localOnly];
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}services`, JSON.stringify(merged));
-          } catch {}
-          return merged;
-        });
+        setServices(mapped);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}services`, JSON.stringify(mapped));
+        } catch {}
       }
 
-      // 3. Testimonials Smart Merge
+      // 3. Testimonials (From Supabase Only)
       if (testRes.status === "fulfilled" && testRes.value.data) {
         const mapped: AdminTestimonial[] = testRes.value.data.map((row: any) => ({
           id: row.id,
@@ -326,20 +262,13 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           status: row.status || "published",
           createdAt: row.created_at?.split("T")[0] || "2026-10-20",
         }));
-
-        setTestimonials((prev) => {
-          if (mapped.length === 0) return prev;
-          const remoteIds = new Set(mapped.map((t) => t.id));
-          const localOnly = prev.filter((t) => !remoteIds.has(t.id));
-          const merged = [...mapped, ...localOnly];
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}testimonials`, JSON.stringify(merged));
-          } catch {}
-          return merged;
-        });
+        setTestimonials(mapped);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}testimonials`, JSON.stringify(mapped));
+        } catch {}
       }
 
-      // 4. Clients Smart Merge (PRESERVES all newly uploaded client logos)
+      // 4. Clients (From Supabase Only)
       if (cliRes.status === "fulfilled" && cliRes.value.data) {
         const mapped: AdminClient[] = cliRes.value.data.map((row: any) => ({
           id: row.id,
@@ -350,20 +279,13 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           logoUrl: row.logo_url,
           status: row.status || "active",
         }));
-
-        setClients((prev) => {
-          if (mapped.length === 0) return prev;
-          const remoteIds = new Set(mapped.map((c) => c.id));
-          const localOnly = prev.filter((c) => !remoteIds.has(c.id));
-          const merged = [...mapped, ...localOnly];
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}clients`, JSON.stringify(merged));
-          } catch {}
-          return merged;
-        });
+        setClients(mapped);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}clients`, JSON.stringify(mapped));
+        } catch {}
       }
 
-      // 5. Enquiries Smart Merge
+      // 5. Enquiries (From Supabase Only)
       if (enqRes.status === "fulfilled" && enqRes.value.data) {
         const mapped: AdminEnquiry[] = enqRes.value.data.map((row: any) => ({
           id: row.id,
@@ -376,20 +298,13 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           submittedAt: row.submitted_at || new Date().toISOString(),
           notes: row.notes,
         }));
-
-        setEnquiries((prev) => {
-          if (mapped.length === 0) return prev;
-          const remoteIds = new Set(mapped.map((e) => e.id));
-          const localOnly = prev.filter((e) => !remoteIds.has(e.id));
-          const merged = [...mapped, ...localOnly];
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}enquiries`, JSON.stringify(merged));
-          } catch {}
-          return merged;
-        });
+        setEnquiries(mapped);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}enquiries`, JSON.stringify(mapped));
+        } catch {}
       }
 
-      // Site Content (reading from content jsonb column)
+      // 6. Site Content
       if (contentRes.status === "fulfilled" && contentRes.value.data) {
         const jsonContent = contentRes.value.data.content || contentRes.value.data;
         if (jsonContent) {
@@ -400,7 +315,9 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
             contact: jsonContent.contact || initialContent.contact,
           };
           setContent(merged);
-          localStorage.setItem(`${STORAGE_PREFIX}content`, JSON.stringify(merged));
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}content`, JSON.stringify(merged));
+          } catch {}
         }
       }
     } catch (err) {
@@ -862,7 +779,7 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Real-time Calculated Statistics
+  // Real-time Calculated Statistics: Strictly reflects current active data
   const stats = {
     totalProjects: projects.length,
     publishedProjects: projects.filter((p) => p.status === "published").length,
