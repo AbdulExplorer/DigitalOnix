@@ -633,21 +633,47 @@ export function AdminImageUploader({
             </div>
           )}
 
-          {/* Error Banner */}
+          {/* Error Banner with Direct Upload Fallback */}
           {processingStage === "error" && errorMessage && (
-            <div className="adm-video-error-box">
-              <AlertTriangle size={16} style={{ color: "var(--adm-danger)", flexShrink: 0 }} />
-              <div style={{ fontSize: "0.78rem", color: "var(--adm-danger)" }}>
-                {errorMessage}
+            <div className="adm-video-error-box" style={{ flexDirection: "column", alignItems: "flex-start", gap: "0.6rem" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "0.65rem", width: "100%" }}>
+                <AlertTriangle size={18} style={{ color: "var(--adm-danger)", flexShrink: 0, marginTop: "2px" }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, color: "var(--adm-danger)", fontSize: "0.82rem" }}>
+                    Video Processing Notice
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--adm-text-secondary)", marginTop: "2px", wordBreak: "break-word" }}>
+                    {errorMessage}
+                  </div>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={resetVideoWorkflow}
-                className="adm-btn adm-btn-secondary adm-btn-sm"
-                style={{ marginLeft: "auto" }}
-              >
-                Retry
-              </button>
+
+              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem", flexWrap: "wrap", width: "100%", justifyContent: "flex-end" }}>
+                <button
+                  type="button"
+                  onClick={() => startCompressionAndUpload(true)}
+                  className="adm-btn adm-btn-primary adm-btn-sm"
+                  title="Upload original video directly to Supabase via TUS"
+                >
+                  <UploadCloud size={13} />
+                  <span>Direct Upload (Skip Compression)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => startCompressionAndUpload(false)}
+                  className="adm-btn adm-btn-secondary adm-btn-sm"
+                >
+                  <RotateCcw size={13} />
+                  <span>Retry Compression</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={resetVideoWorkflow}
+                  className="adm-btn adm-btn-ghost adm-btn-sm"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
         </div>

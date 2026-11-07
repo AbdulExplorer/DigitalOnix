@@ -5,8 +5,9 @@ import {
   CompressionResult,
 } from "./video-types";
 
-// Dynamic CDN endpoints for single-threaded FFmpeg.wasm core (zero COOP/COEP isolation conflicts)
-const FFMPEG_CORE_BASE = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm";
+// CDN endpoints for single-threaded FFmpeg.wasm core (UMD distribution for classic Web Worker compatibility)
+const UMD_CDN_URL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
+const JSDELIVR_CDN_URL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
 
 // Single-concurrency lock
 let isGlobalEncodingActive = false;
@@ -129,6 +130,42 @@ export function checkDeviceCapabilities(fileSizeBytes: number, mobileThresholdMB
   };
 }
 
+/**
+ * Multi-tier loader for FFmpeg UMD core (Local assets -> unpkg -> jsdelivr)
+ */
+async function getCoreBlobUrls(): Promise<{ coreURL: string; wasmURL: string }> {
+  const { toBlobURL } = await import("@ffmpeg/util");
+
+  // Strategy 1: Local /ffmpeg/ assets from public/ folder (0ms latency, zero CORS)
+  if (typeof window !== "undefined") {
+    try {
+      const origin = window.location.origin;
+      const testRes = await fetch(`${origin}/ffmpeg/ffmpeg-core.js`, { method: "HEAD" });
+      if (testRes.ok) {
+        const coreURL = await toBlobURL(`${origin}/ffmpeg/ffmpeg-core.js`, "text/javascript");
+        const wasmURL = await toBlobURL(`${origin}/ffmpeg/ffmpeg-core.wasm`, "application/wasm");
+        return { coreURL, wasmURL };
+      }
+    } catch (e) {
+      console.warn("Local FFmpeg core fetch skipped, using CDN:", e);
+    }
+  }
+
+  // Strategy 2: unpkg CDN (UMD distribution)
+  try {
+    const coreURL = await toBlobURL(`${UMD_CDN_URL}/ffmpeg-core.js`, "text/javascript");
+    const wasmURL = await toBlobURL(`${UMD_CDN_URL}/ffmpeg-core.wasm`, "application/wasm");
+    return { coreURL, wasmURL };
+  } catch (e) {
+    console.warn("unpkg CDN fetch notice, trying jsdelivr fallback:", e);
+  }
+
+  // Strategy 3: jsdelivr CDN (UMD distribution)
+  const coreURL = await toBlobURL(`${JSDELIVR_CDN_URL}/ffmpeg-core.js`, "text/javascript");
+  const wasmURL = await toBlobURL(`${JSDELIVR_CDN_URL}/ffmpeg-core.wasm`, "application/wasm");
+  return { coreURL, wasmURL };
+}
+
 export interface VideoCompressionJob {
   file: File;
   settings?: Partial<CompressionSettings>;
@@ -193,7 +230,7 @@ export function startVideoCompression({
         ratio: 0.05,
         percent: 5,
         elapsedSeconds: 0,
-        message: "Analyzing video streams and dimensions...",
+        message: "Analyzing video dimensions and streams...",
       });
 
       const meta = initialMetadata || (await extractVideoMetadata(file));
@@ -210,7 +247,6 @@ export function startVideoCompression({
         targetW = Math.round((targetW * scale) / 2) * 2;
         targetH = Math.round((targetH * scale) / 2) * 2;
       } else {
-        // Ensure even dimensions for yuv420p
         targetW = Math.round(targetW / 2) * 2;
         targetH = Math.round(targetH / 2) * 2;
       }
@@ -221,22 +257,27 @@ export function startVideoCompression({
         ratio: 0.1,
         percent: 10,
         elapsedSeconds: Math.round((Date.now() - startTime) / 1000),
-        message: "Loading browser compression engine...",
+        message: "Loading browser compression engine (FFmpeg.wasm)...",
       });
 
       const { FFmpeg } = await import("@ffmpeg/ffmpeg");
-      const { fetchFile, toBlobURL } = await import("@ffmpeg/util");
+      const { fetchFile } = await import("@ffmpeg/util");
 
       if (cancelled) throw new Error("Compression cancelled.");
 
       const ffmpeg = new FFmpeg();
       activeFFmpegInstance = ffmpeg;
 
-      // Load core via Blob URLs
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${FFMPEG_CORE_BASE}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${FFMPEG_CORE_BASE}/ffmpeg-core.wasm`, "application/wasm"),
+      // Capture logs for debugging and error diagnosis
+      const logs: string[] = [];
+      ffmpeg.on("log", ({ message }) => {
+        logs.push(message);
+        if (logs.length > 30) logs.shift();
       });
+
+      // Load core via Blob URLs (UMD distribution)
+      const { coreURL, wasmURL } = await getCoreBlobUrls();
+      await ffmpeg.load({ coreURL, wasmURL });
 
       if (cancelled) throw new Error("Compression cancelled.");
 
@@ -246,10 +287,11 @@ export function startVideoCompression({
         ratio: 0.15,
         percent: 15,
         elapsedSeconds: Math.round((Date.now() - startTime) / 1000),
-        message: "Loading video into memory...",
+        message: "Reading video into memory...",
       });
 
-      const inputName = `input_${Date.now()}.${file.name.split(".").pop() || "mp4"}`;
+      const ext = (file.name.split(".").pop() || "mp4").toLowerCase();
+      const inputName = `input_${Date.now()}.${ext}`;
       const outputName = `output_${Date.now()}.mp4`;
 
       const inputData = await fetchFile(file);
@@ -287,31 +329,29 @@ export function startVideoCompression({
       });
 
       // 4. Build exact FFmpeg execution arguments
-      // Scale filter ensuring even dimensions and aspect ratio preservation
       const scaleFilter = `scale=${targetW}:${targetH}`;
 
-      const args = [
+      let args = [
         "-i", inputName,
         "-c:v", "libx264",
         "-preset", preset,
         "-crf", crf.toString(),
         "-pix_fmt", "yuv420p",
         "-vf", scaleFilter,
-        "-map", "0:v:0",
-        "-map", "0:a?", // Optional audio stream mapping: handles silent video gracefully
         "-c:a", "aac",
         "-b:a", "128k",
-        "-movflags", "+faststart", // Web fast-start streaming
+        "-movflags", "+faststart",
         outputName,
       ];
 
       // Execute compression
-      const exitCode = await ffmpeg.exec(args);
+      let exitCode = await ffmpeg.exec(args);
 
       if (cancelled) throw new Error("Compression cancelled.");
 
+      // If audio mapping failed, retry with -an (silent fallback)
       if (exitCode !== 0) {
-        // Fallback execution without audio if audio stream failed
+        console.warn("Primary encoding exited with non-zero code. Retrying with -an fallback...");
         const fallbackArgs = [
           "-i", inputName,
           "-c:v", "libx264",
@@ -319,14 +359,16 @@ export function startVideoCompression({
           "-crf", crf.toString(),
           "-pix_fmt", "yuv420p",
           "-vf", scaleFilter,
-          "-an", // Strip audio
+          "-an", // Strip audio stream
           "-movflags", "+faststart",
           outputName,
         ];
-        const retryCode = await ffmpeg.exec(fallbackArgs);
-        if (retryCode !== 0) {
-          throw new Error(`FFmpeg encoding exited with code ${retryCode}`);
-        }
+        exitCode = await ffmpeg.exec(fallbackArgs);
+      }
+
+      if (exitCode !== 0) {
+        const errorDetail = logs.slice(-5).join(" | ");
+        throw new Error(`FFmpeg encoding exited with code ${exitCode}. Details: ${errorDetail || "Unknown error"}`);
       }
 
       onProgress?.({
@@ -404,4 +446,3 @@ export function startVideoCompression({
 
   return { promise, cancel };
 }
-
