@@ -1,3 +1,7 @@
+/* ==========================================================================
+   DIGITALONIX CLIENT LOGOS SECTION - HIGH PERFORMANCE & OPTICAL SIZING
+   ========================================================================== */
+
 .logos-section {
   padding-top: var(--space-3xl);
   padding-bottom: var(--space-3xl);
@@ -22,82 +26,174 @@
   font-weight: 600;
 }
 
+/* Outer Marquee Container with smooth edge fades using hardware-accelerated overlays */
 .marquee-outer-container {
   position: relative;
   width: 100%;
   overflow: hidden;
-  mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  padding: 0.5rem 0;
 }
 
+.marquee-outer-container::before,
+.marquee-outer-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 90px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.marquee-outer-container::before {
+  left: 0;
+  background: linear-gradient(to right, #08090C 0%, rgba(8, 9, 12, 0) 100%);
+}
+
+.marquee-outer-container::after {
+  right: 0;
+  background: linear-gradient(to left, #08090C 0%, rgba(8, 9, 12, 0) 100%);
+}
+
+/* 60fps/120fps GPU-Accelerated Marquee Strip (No mask-image, zero lag) */
 .marquee-inner-strip {
   display: flex;
   align-items: center;
-  gap: 3.5rem;
+  gap: 3rem;
   width: max-content;
-  animation: marquee-scroll 40s linear infinite;
-  padding: 0.75rem 0;
+  animation: marquee-scroll 42s linear infinite;
+  padding: 0.5rem 0;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .marquee-outer-container:hover .marquee-inner-strip {
   animation-play-state: paused;
 }
 
-/* Pure Logo without any background box or borders */
+/* Equalized Sizing Box for Each Client Logo */
 .logo-badge {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 180px;
+  height: 80px;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  backdrop-filter: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  color: #94A3B8;
-  opacity: 0.65;
-  transition: opacity 0.3s ease, color 0.3s ease, transform 0.3s ease;
   cursor: default;
   flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .logo-badge:hover {
-  opacity: 1;
-  color: #FFFFFF;
-  transform: scale(1.12);
+  transform: translateY(-2px) scale(1.06);
 }
 
+/* Inner Bounding Box Ensuring Consistent Optical Weight */
 .logo-symbol {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 6px 14px;
+  box-sizing: border-box;
   flex-shrink: 0;
-  color: inherit;
-  transition: color 0.3s ease;
+  color: #94A3B8;
+  transition: color 0.25s ease;
 }
 
-.logo-symbol svg {
-  width: 36px;
-  height: 36px;
-  display: block;
-}
-
+/* Authentic, Crisp Client Logos (Annoying filter removed, true brand colors & contrast) */
 .logo-symbol img {
-  height: 42px;
+  max-width: 155px;
+  max-height: 68px;
   width: auto;
-  max-width: 160px;
+  height: auto;
   object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.8;
-  transition: all 0.3s ease;
+  filter: none !important;
+  opacity: 0.95;
+  transition: opacity 0.25s ease, transform 0.25s ease;
   display: block;
+  user-select: none;
+  pointer-events: none;
 }
 
 .logo-badge:hover .logo-symbol img {
-  filter: none;
   opacity: 1;
-  transform: scale(1.06);
+  filter: none !important;
+  transform: scale(1.04);
+}
+
+/* Vector Fallback Icons Sized to Match */
+.logo-symbol svg {
+  width: 48px;
+  height: 48px;
+  display: block;
+  color: var(--color-primary, #8B3DFF);
+  opacity: 0.9;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.logo-badge:hover .logo-symbol svg {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+/* Self-contained 3D Transform Keyframes for Marquee Scroll */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .logos-section {
+    padding-top: var(--space-2xl);
+    padding-bottom: var(--space-2xl);
+  }
+
+  .marquee-outer-container::before,
+  .marquee-outer-container::after {
+    width: 45px;
+  }
+
+  .marquee-inner-strip {
+    gap: 2rem;
+    animation-duration: 32s;
+  }
+
+  /* Sized prominently for mobile screens with equal optical balance */
+  .logo-badge {
+    width: 140px;
+    height: 64px;
+  }
+
+  .logo-symbol {
+    padding: 4px 10px;
+  }
+
+  .logo-symbol img {
+    max-width: 125px;
+    max-height: 54px;
+  }
+
+  .logo-symbol svg {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
