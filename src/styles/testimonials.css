@@ -116,17 +116,18 @@
   box-sizing: border-box;
 }
 
-/* Video Container on Top of Card */
+/* Video Container on Top of Card (Vertical 9:16 Portrait / Reel Ratio) */
 .testimonial-video-area {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 12px;
+  aspect-ratio: 9 / 16;
+  max-height: 560px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0B0E14;
-  margin-bottom: 1.25rem;
-  border: 1px solid rgba(139, 61, 255, 0.25);
-  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.6);
+  margin: 0 auto 1.25rem auto;
+  border: 1px solid rgba(139, 61, 255, 0.28);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.7);
 }
 
 .testimonial-video-player {
@@ -297,8 +298,10 @@
   }
 
   .testimonial-video-area {
+    aspect-ratio: 9 / 16;
+    max-height: 500px;
     margin-bottom: 1rem;
-    border-radius: 10px;
+    border-radius: 12px;
   }
 
   .testimonials-header-row {

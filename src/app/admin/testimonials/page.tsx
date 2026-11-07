@@ -336,10 +336,10 @@ export default function AdminTestimonialsPage() {
 
           {/* Video Testimonial Upload */}
           <AdminImageUploader
-            label="Client Video Testimonial / Story Clip (Optional)"
+            label="Client Video Testimonial (9:16 Portrait Reel)"
             currentImageUrl={formData.videoUrl}
             onImageChange={(url) => setFormData({ ...formData, videoUrl: url })}
-            helperText="Upload client video review (MP4, WebM, MOV) or paste video URL. Displayed above the quote card."
+            helperText="Upload vertical 9:16 client video review (MP4, WebM, MOV) or paste video URL. Displayed in portrait format above the quote card."
             folder="testimonials"
             allowVideo={true}
           />
