@@ -1,11 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { agencyStats } from "@/data/stats";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { siteConfig } from "@/data/config";
+import { useAdminData } from "@/context/AdminDataContext";
 import { MapPin, FolderCheck, Users, Banknote } from "lucide-react";
 
 export function Statistics() {
+  const { content } = useAdminData();
+  const statsData = content.stats;
+
+  const projectsStr = statsData?.projectsDelivered || "1000+";
+  const clientsStr = statsData?.clientsServed || "250+";
+  const metaAdSpendStr = statsData?.metaAdSpend || "₹10Lakh+";
+
+  const targetProjects = parseInt(projectsStr.replace(/[^0-9]/g, "") || "1000", 10);
+  const targetClients = parseInt(clientsStr.replace(/[^0-9]/g, "") || "250", 10);
+  const targetAdSpend = parseInt(metaAdSpendStr.replace(/[^0-9]/g, "") || "10", 10);
+
+  const projectsSuffix = projectsStr.replace(/[0-9]/g, "") || "+";
+  const clientsSuffix = clientsStr.replace(/[0-9]/g, "") || "+";
+  const adSpendPrefix = metaAdSpendStr.includes("₹") ? "₹" : "";
+  const adSpendSuffix = metaAdSpendStr.replace(/[^a-zA-Z+]/g, "") || "Lakh+";
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [displayCounts, setDisplayCounts] = useState<{ [key: string]: number }>({
@@ -14,31 +30,12 @@ export function Statistics() {
     adspend: 0,
   });
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          startCounters();
-        }
-      },
-      { threshold: 0.25 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasAnimated]);
-
-  const startCounters = () => {
+  const startCounters = useCallback(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setDisplayCounts({
-        projects: 1000,
-        clients: 250,
-        adspend: 10,
+        projects: targetProjects,
+        clients: targetClients,
+        adspend: targetAdSpend,
       });
       return;
     }
@@ -47,9 +44,9 @@ export function Statistics() {
     const startTime = performance.now();
 
     const targets = {
-      projects: 1000,
-      clients: 250,
-      adspend: 10,
+      projects: targetProjects,
+      clients: targetClients,
+      adspend: targetAdSpend,
     };
 
     const animate = (currentTime: number) => {
@@ -71,20 +68,53 @@ export function Statistics() {
     };
 
     requestAnimationFrame(animate);
-  };
+  }, [targetProjects, targetClients, targetAdSpend]);
 
-  const getIcon = (id: string) => {
-    switch (id) {
-      case "projects":
-        return <FolderCheck size={22} />;
-      case "clients":
-        return <Users size={22} />;
-      case "adspend":
-        return <Banknote size={22} />;
-      default:
-        return <FolderCheck size={22} />;
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          startCounters();
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
-  };
+
+    return () => observer.disconnect();
+  }, [hasAnimated, startCounters]);
+
+  const items = [
+    {
+      id: "projects",
+      prefix: "",
+      value: targetProjects,
+      suffix: projectsSuffix,
+      label: "Projects Delivered",
+      icon: <FolderCheck size={22} />,
+    },
+    {
+      id: "clients",
+      prefix: "",
+      value: targetClients,
+      suffix: clientsSuffix,
+      label: "Clients Served",
+      icon: <Users size={22} />,
+    },
+    {
+      id: "adspend",
+      prefix: adSpendPrefix,
+      value: targetAdSpend,
+      suffix: adSpendSuffix,
+      label: "Meta Ad Spend",
+      icon: <Banknote size={22} />,
+    },
+  ];
 
   return (
     <section
@@ -110,7 +140,7 @@ export function Statistics() {
 
           {/* Statistics Column */}
           <div className="stats-cards-wrapper">
-            {agencyStats.map((stat, idx) => (
+            {items.map((stat, idx) => (
               <div
                 key={stat.id}
                 className={`stat-card reveal-on-scroll reveal-delay-${idx + 1}`}
@@ -125,7 +155,7 @@ export function Statistics() {
                 </div>
 
                 <div className="stat-icon-emblem" aria-hidden="true">
-                  {getIcon(stat.id)}
+                  {stat.icon}
                 </div>
               </div>
             ))}

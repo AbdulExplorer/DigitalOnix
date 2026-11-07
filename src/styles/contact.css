@@ -1,7 +1,8 @@
 .quote-section {
   position: relative;
-  background-color: var(--color-bg);
+  background-color: transparent;
   overflow: hidden;
+  z-index: 2;
 }
 
 .quote-layout-grid {

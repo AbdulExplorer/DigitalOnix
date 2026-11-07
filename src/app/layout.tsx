@@ -18,10 +18,8 @@ import "@/styles/footer.css";
 import "@/styles/pages.css";
 
 import { siteConfig } from "@/data/config";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { ScrollReveal } from "@/components/ScrollReveal";
+import { PublicShell } from "@/components/PublicShell";
+import { AdminDataProvider } from "@/context/AdminDataContext";
 
 export const metadata: Metadata = {
   title: {
@@ -131,11 +129,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ScrollReveal />
-        <Header />
-        <main id="main-content">{children}</main>
-        <Footer />
-        <ThemeSwitcher />
+        <AdminDataProvider>
+          <PublicShell>{children}</PublicShell>
+        </AdminDataProvider>
       </body>
     </html>
   );

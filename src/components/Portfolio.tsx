@@ -1,15 +1,19 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { portfolioItems, portfolioCategories, PortfolioCategory, PortfolioItem } from "@/data/portfolio";
-import { Play, TrendingUp, Sparkles, X, BarChart3, Video, Palette } from "lucide-react";
+import { portfolioCategories, PortfolioCategory } from "@/data/portfolio";
+import { useAdminData } from "@/context/AdminDataContext";
+import { AdminProject } from "@/types/admin";
+import { Play, TrendingUp, Sparkles, X, BarChart3, Video, Palette, ExternalLink } from "lucide-react";
 
 export function Portfolio() {
+  const { projects } = useAdminData();
   const [activeCategory, setActiveCategory] = useState<PortfolioCategory>("Results");
-  const [selectedModalItem, setSelectedModalItem] = useState<PortfolioItem | null>(null);
+  const [selectedModalItem, setSelectedModalItem] = useState<AdminProject | null>(null);
 
-  const displayedItems = portfolioItems.filter(
-    (item) => item.category === activeCategory
+  const displayedItems = projects.filter(
+    (item) => item.status === "published" && item.category === activeCategory
   );
 
   useEffect(() => {
@@ -29,7 +33,12 @@ export function Portfolio() {
   }, [selectedModalItem]);
 
   return (
-    <section id="portfolio" className="portfolio-section section-padding" aria-label="Our Portfolio">
+    <section
+      id="portfolio"
+      className="portfolio-section section-padding"
+      data-antigravity-visible="true"
+      aria-label="Our Portfolio"
+    >
       <div className="container">
         <div className="section-header reveal-on-scroll">
           <span className="section-tag">Featured Work</span>
@@ -65,69 +74,93 @@ export function Portfolio() {
           ))}
         </div>
 
-        {/* Portfolio Grid with key for smooth tab transition (never hides cards) */}
+        {/* Portfolio Grid with key for smooth tab transition */}
         <div key={activeCategory} className="portfolio-grid portfolio-grid-fade">
-          {displayedItems.map((item) => (
-            <article
-              key={item.id}
-              className="portfolio-card"
-              onClick={() => setSelectedModalItem(item)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setSelectedModalItem(item);
-                }
-              }}
-              aria-label={`View details for ${item.title}`}
-            >
-              {/* Visual Container */}
-              <div className={`portfolio-visual-container aspect-${item.aspectRatio.replace("/", "-")}`}>
-                <div className="portfolio-placeholder-graphic">
-                  {item.mediaType === "video" ? (
-                    <div className="portfolio-play-overlay">
-                      <Play size={22} fill="currentColor" />
-                    </div>
-                  ) : item.category === "Results" ? (
-                    <div className="portfolio-play-overlay" style={{ background: "rgba(120, 29, 181, 0.25)", border: "1px solid var(--brand-purple-light)" }}>
-                      <TrendingUp size={24} style={{ color: "var(--brand-purple-light)" }} />
+          {displayedItems.length === 0 ? (
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
+              No projects published in this category yet.
+            </div>
+          ) : (
+            displayedItems.map((item) => (
+              <article
+                key={item.id}
+                className="portfolio-card"
+                onClick={() => setSelectedModalItem(item)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelectedModalItem(item);
+                  }
+                }}
+                aria-label={`View details for ${item.title}`}
+              >
+                {/* Visual Container */}
+                <div className={`portfolio-visual-container aspect-${(item.aspectRatio || "16/9").replace("/", "-")}`}>
+                  {item.thumbnailUrl ? (
+                    <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
+                      <img
+                        src={item.thumbnailUrl}
+                        alt={item.title}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                      {item.mediaType === "video" && (
+                        <div className="portfolio-play-overlay">
+                          <Play size={22} fill="currentColor" />
+                        </div>
+                      )}
+                      {item.videoDuration && (
+                        <span className="video-badge">{item.videoDuration}</span>
+                      )}
                     </div>
                   ) : (
-                    <div className="portfolio-play-overlay" style={{ background: "rgba(120, 29, 181, 0.25)", border: "1px solid var(--brand-purple-light)" }}>
-                      <Sparkles size={24} style={{ color: "var(--brand-purple-light)" }} />
+                    <div className="portfolio-placeholder-graphic">
+                      {item.mediaType === "video" ? (
+                        <div className="portfolio-play-overlay">
+                          <Play size={22} fill="currentColor" />
+                        </div>
+                      ) : item.category === "Results" ? (
+                        <div className="portfolio-play-overlay" style={{ background: "rgba(120, 29, 181, 0.25)", border: "1px solid var(--brand-purple-light)" }}>
+                          <TrendingUp size={24} style={{ color: "var(--brand-purple-light)" }} />
+                        </div>
+                      ) : (
+                        <div className="portfolio-play-overlay" style={{ background: "rgba(120, 29, 181, 0.25)", border: "1px solid var(--brand-purple-light)" }}>
+                          <Sparkles size={24} style={{ color: "var(--brand-purple-light)" }} />
+                        </div>
+                      )}
+
+                      {item.videoDuration && (
+                        <span className="video-badge">{item.videoDuration}</span>
+                      )}
                     </div>
                   )}
+                </div>
 
-                  {item.videoDuration && (
-                    <span className="video-badge">{item.videoDuration}</span>
+                {/* Card Body */}
+                <div className="portfolio-card-body">
+                  <div className="portfolio-meta-header">
+                    <span className="portfolio-client-tag">{item.clientLabel || item.client}</span>
+                    <span className="portfolio-type-pill">{item.subcategory}</span>
+                  </div>
+
+                  <h3 className="portfolio-item-title">{item.title}</h3>
+                  <p className="portfolio-item-summary">{item.summary}</p>
+
+                  {item.metrics && item.metrics.length > 0 && (
+                    <div className="portfolio-metrics-row">
+                      {item.metrics.map((metric, idx) => (
+                        <div key={idx} className="portfolio-metric-box">
+                          <div className="portfolio-metric-value">{metric.value}</div>
+                          <div className="portfolio-metric-label">{metric.label}</div>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </div>
-
-              {/* Card Body */}
-              <div className="portfolio-card-body">
-                <div className="portfolio-meta-header">
-                  <span className="portfolio-client-tag">{item.clientLabel}</span>
-                  <span className="portfolio-type-pill">{item.subcategory}</span>
-                </div>
-
-                <h3 className="portfolio-item-title">{item.title}</h3>
-                <p className="portfolio-item-summary">{item.summary}</p>
-
-                {item.metrics && item.metrics.length > 0 && (
-                  <div className="portfolio-metrics-row">
-                    {item.metrics.map((metric, idx) => (
-                      <div key={idx} className="portfolio-metric-box">
-                        <div className="portfolio-metric-value">{metric.value}</div>
-                        <div className="portfolio-metric-label">{metric.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </article>
-          ))}
+              </article>
+            ))
+          )}
         </div>
       </div>
 
@@ -161,36 +194,14 @@ export function Portfolio() {
             </h3>
 
             <p style={{ color: "var(--brand-purple-light)", fontWeight: 600, fontSize: "0.85rem", marginBottom: "1.25rem" }}>
-              {selectedModalItem.clientLabel}
+              {selectedModalItem.clientLabel || selectedModalItem.client}
             </p>
 
             <p style={{ color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-              {selectedModalItem.summary}
+              {selectedModalItem.description || selectedModalItem.summary}
             </p>
 
-            {selectedModalItem.objective && (
-              <div style={{ marginBottom: "1rem" }}>
-                <strong style={{ color: "#FFFFFF", display: "block", fontSize: "0.9rem", marginBottom: "4px" }}>
-                  Objective:
-                </strong>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
-                  {selectedModalItem.objective}
-                </p>
-              </div>
-            )}
-
-            {selectedModalItem.strategy && (
-              <div style={{ marginBottom: "1.5rem" }}>
-                <strong style={{ color: "#FFFFFF", display: "block", fontSize: "0.9rem", marginBottom: "4px" }}>
-                  Strategy:
-                </strong>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
-                  {selectedModalItem.strategy}
-                </p>
-              </div>
-            )}
-
-            {selectedModalItem.metrics && (
+            {selectedModalItem.metrics && selectedModalItem.metrics.length > 0 && (
               <div className="portfolio-metrics-row" style={{ marginBottom: "1.5rem" }}>
                 {selectedModalItem.metrics.map((m, idx) => (
                   <div key={idx} className="portfolio-metric-box">
@@ -201,7 +212,20 @@ export function Portfolio() {
               </div>
             )}
 
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
+              {selectedModalItem.projectUrl ? (
+                <a
+                  href={selectedModalItem.projectUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem" }}
+                >
+                  <span>Visit Case Study</span>
+                  <ExternalLink size={14} />
+                </a>
+              ) : <div />}
+
               <button
                 className="btn btn-primary"
                 onClick={() => setSelectedModalItem(null)}

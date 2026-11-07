@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { servicesData, serviceCategories } from "@/data/services";
+import { useAdminData } from "@/context/AdminDataContext";
+import { serviceCategories } from "@/data/services";
 import {
   Megaphone,
   Share2,
@@ -21,12 +22,15 @@ import {
 } from "lucide-react";
 
 export function Services() {
+  const { services } = useAdminData();
   const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
+
+  const activeServices = services.filter((s) => s.status === "active");
 
   const filteredServices =
     selectedCategory === "All Categories"
-      ? servicesData
-      : servicesData.filter((item) => item.category === selectedCategory);
+      ? activeServices
+      : activeServices.filter((item) => item.category === selectedCategory);
 
   const renderIcon = (name: string) => {
     switch (name) {
@@ -80,7 +84,7 @@ export function Services() {
             role="tab"
             aria-selected={selectedCategory === "All Categories"}
           >
-            All Services ({servicesData.length})
+            All Services ({activeServices.length})
           </button>
           {serviceCategories.map((category) => (
             <button
@@ -95,43 +99,47 @@ export function Services() {
           ))}
         </div>
 
-        {/* Services Card Grid with key for smooth tab transition (never hides cards) */}
+        {/* Services Card Grid with key for smooth tab transition */}
         <div key={selectedCategory} className="services-grid services-grid-fade">
-          {filteredServices.map((service) => (
-            <article key={service.id} className="service-card">
-              <div className="service-card-top">
-                <div className="service-icon-wrap" aria-hidden="true">
-                  {renderIcon(service.iconName)}
+          {filteredServices.length === 0 ? (
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "3rem", color: "var(--text-secondary)" }}>
+              No active services found in this category.
+            </div>
+          ) : (
+            filteredServices.map((service) => (
+              <article key={service.id} className="service-card">
+                <div className="service-card-top">
+                  <div className="service-icon-wrap" aria-hidden="true">
+                    {renderIcon(service.iconName)}
+                  </div>
+                  <span className="service-category-pill">{service.category}</span>
                 </div>
-                <span className="service-category-pill">{service.category}</span>
-              </div>
 
-              <h3 className="service-title">{service.title}</h3>
-              <p className="service-description">{service.shortDescription}</p>
+                <h3 className="service-title">{service.title}</h3>
+                <p className="service-description">{service.shortDescription}</p>
 
-              <ul className="service-features-list">
-                {service.features.map((feature, idx) => (
-                  <li key={idx} className="service-feature-item">
-                    <Check className="service-feature-check" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+                {service.features && service.features.length > 0 && (
+                  <ul className="service-features-list">
+                    {service.features.map((feature, idx) => (
+                      <li key={idx} className="service-feature-item">
+                        <Check className="service-feature-check" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-              <div className="service-card-footer">
-                <Link
-                  href={`/#quote?service=${encodeURIComponent(service.title)}`}
-                  className="service-inquire-link"
-                >
-                  <span>Request Scope</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
-            </article>
-          ))}
+                <div className="service-card-footer">
+                  <Link href="/#quote" className="service-cta-link">
+                    <span>Inquire for Scope</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </article>
+            ))
+          )}
         </div>
       </div>
     </section>
   );
 }
-

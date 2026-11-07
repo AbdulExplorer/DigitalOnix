@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase-client";
 
 export interface QuoteRequestBody {
   name: string;
@@ -51,16 +52,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // In production: Connect to Resend, SendGrid, or AWS SES:
-    // await resend.emails.send({ ... });
-    // In current development mode, log the validated lead securely:
-    console.log("[Digitalonix Inquiry Received]:", {
-      name,
-      contact,
-      service,
-      description,
-      timestamp: new Date().toISOString(),
-    });
+    // Automatically record lead into Supabase enquiries table if connected
+    if (supabase) {
+      try {
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
+        await supabase.from("enquiries").insert({
+          name,
+          email: isEmail ? contact : "client@digitalonix.in",
+          phone: !isEmail ? contact : null,
+          service,
+          message: description || "Inquiry from website quote form",
+          status: "new",
+        });
+      } catch (dbErr) {
+        console.error("Failed to persist inquiry to database:", dbErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,

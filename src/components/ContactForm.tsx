@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { servicesData } from "@/data/services";
 import { siteConfig } from "@/data/config";
+import { useAdminData } from "@/context/AdminDataContext";
 import { Send, CheckCircle2, AlertCircle, MapPin, Mail, Phone } from "lucide-react";
 
 interface FormState {
@@ -20,6 +21,9 @@ interface FormErrors {
 }
 
 export function ContactForm() {
+  const { addEnquiry, services } = useAdminData();
+  const activeServices = services.filter((s) => s.status === "active");
+
   const [formData, setFormData] = useState<FormState>({
     name: "",
     contact: "",
@@ -85,6 +89,17 @@ export function ContactForm() {
         throw new Error(result.error || "Failed to submit quote inquiry.");
       }
 
+      // Sync into admin enquiries store in real time
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contact);
+      addEnquiry({
+        name: formData.name,
+        email: isEmail ? formData.contact : "",
+        phone: !isEmail ? formData.contact : "",
+        service: formData.service,
+        message: formData.description,
+        status: "new",
+      });
+
       setSuccessMessage(result.message);
       setFormData({
         name: "",
@@ -114,7 +129,12 @@ export function ContactForm() {
   };
 
   return (
-    <section id="quote" className="quote-section section-padding" aria-label="Get a Project Quote">
+    <section
+      id="quote"
+      className="quote-section section-padding"
+      data-antigravity-visible="true"
+      aria-label="Get a Project Quote"
+    >
       <div className="container">
         <div className="quote-layout-grid">
           {/* Info Column */}
@@ -235,7 +255,7 @@ export function ContactForm() {
                   aria-invalid={!!errors.service}
                 >
                   <option value="" disabled>Select a capability</option>
-                  {servicesData.map((svc) => (
+                  {activeServices.map((svc) => (
                     <option key={svc.id} value={svc.title}>
                       {svc.title}
                     </option>

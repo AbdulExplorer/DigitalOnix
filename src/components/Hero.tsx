@@ -1,18 +1,32 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAdminData } from "@/context/AdminDataContext";
 import { ArrowRight } from "lucide-react";
-import { AntigravityField } from "@/components/AntigravityField";
-
-const DYNAMIC_STATEMENTS = [
-  { prefix: "brands ", highlight: "stand out." },
-  { prefix: "creativity ", highlight: "work." },
-  { prefix: "brands ", highlight: "grow." },
-];
 
 export function Hero() {
-  const heroRef = useRef<HTMLElement | null>(null);
+  const { content } = useAdminData();
+  const heroData = content.hero;
+
+  const dynamicPhrases =
+    heroData.dynamicLines && heroData.dynamicLines.length > 0
+      ? heroData.dynamicLines.map((line) => {
+        const parts = line.split(" ");
+        if (parts.length > 1) {
+          return {
+            prefix: parts.slice(0, -1).join(" ") + " ",
+            highlight: parts[parts.length - 1],
+          };
+        }
+        return { prefix: "", highlight: line };
+      })
+      : [
+        { prefix: "brands ", highlight: "stand out." },
+        { prefix: "creativity ", highlight: "work." },
+        { prefix: "brands ", highlight: "grow." },
+      ];
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -25,38 +39,30 @@ export function Hero() {
     const interval = setInterval(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % DYNAMIC_STATEMENTS.length);
+        setCurrentIndex((prev) => (prev + 1) % dynamicPhrases.length);
         setIsTransitioning(false);
       }, 350);
     }, 3800);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [dynamicPhrases.length]);
 
-  const currentStatement = DYNAMIC_STATEMENTS[currentIndex];
+  const currentStatement = dynamicPhrases[currentIndex] || dynamicPhrases[0];
 
   return (
-    <section ref={heroRef} className="hero-section" aria-label="Digitalonix Agency Hero">
+    <section className="hero-section" data-antigravity-visible="true" aria-label="Digitalonix Agency Hero">
       <div className="hero-glow-blob" aria-hidden="true" />
-      <AntigravityField containerRef={heroRef} />
 
       <div className="container hero-content">
-        {/* Minimal Pill Badge */}
-        {/* <div className="hero-pill">
-          <span className="hero-pill-dot" aria-hidden="true" />
-          <span>Creative &amp; Digital Marketing Agency</span>
-        </div> */}
-
         {/* Stable Headline Container with Dynamic Second Line */}
         <div className="hero-headline-wrapper">
           <h1 className="hero-headline">
-            <span className="hero-static-prefix">We Make</span>
+            <span className="hero-static-prefix">{heroData.headlinePrefix || "We Make"}</span>
             <span className="hero-dynamic-slot">
               <span
                 key={currentIndex}
-                className={`hero-dynamic-phrase ${
-                  isTransitioning ? "headline-exiting" : "headline-active"
-                }`}
+                className={`hero-dynamic-phrase ${isTransitioning ? "headline-exiting" : "headline-active"
+                  }`}
               >
                 <span>{currentStatement.prefix}</span>
                 <span className="hero-headline-accent">{currentStatement.highlight}</span>
@@ -66,7 +72,7 @@ export function Hero() {
 
           <noscript>
             <h1 className="hero-headline noscript-headline">
-              <span className="hero-static-prefix">We Make</span>
+              <span className="hero-static-prefix">{heroData.headlinePrefix || "We Make"}</span>
               <span className="hero-dynamic-slot">
                 <span>brands </span>
                 <span className="hero-headline-accent">stand out &amp; grow.</span>
@@ -77,18 +83,19 @@ export function Hero() {
 
         {/* Clean, Concise Supporting Copy */}
         <p className="hero-description">
-          Digitalonix helps businesses grow through creative marketing, digital strategy, and technology.
+          {heroData.subtitle || "Digitalonix helps businesses grow through creative marketing, digital strategy, and technology."}
         </p>
 
         {/* Primary & Secondary CTAs */}
         <div className="hero-cta-group">
           <Link href="/#quote" className="btn btn-primary">
-            <span>Get a Quote</span>
+            <span>{heroData.primaryCtaText || "Get a Quote"}</span>
             <ArrowRight size={17} />
           </Link>
 
           <Link href="/portfolio" className="btn btn-secondary">
-            <span>Explore Our Work</span>
+            <span>{heroData.secondaryCtaText || "Explore Our Work"}</span>
+            <ArrowRight size={15} />
           </Link>
         </div>
       </div>

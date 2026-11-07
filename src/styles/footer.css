@@ -4,7 +4,7 @@
   padding-top: var(--space-4xl);
   padding-bottom: var(--space-2xl);
   position: relative;
-  z-index: var(--z-base);
+  z-index: 2;
 }
 
 .footer-top-grid {
