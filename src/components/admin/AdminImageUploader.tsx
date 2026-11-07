@@ -1,8 +1,34 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { UploadCloud, Image as ImageIcon, Video as VideoIcon, X, Link as LinkIcon, Check, Loader2 } from "lucide-react";
+import {
+  UploadCloud,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  X,
+  Link as LinkIcon,
+  Check,
+  Loader2,
+  AlertTriangle,
+  Play,
+  RotateCcw,
+  Sparkles,
+  Zap,
+  Sliders,
+  CheckCircle2,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
+import {
+  VideoMetadata,
+  CompressionProgress,
+  CompressionResult,
+} from "@/lib/video-types";
+import {
+  extractVideoMetadata,
+  checkDeviceCapabilities,
+  startVideoCompression,
+} from "@/lib/video-compressor";
+import { createTusUploader } from "@/lib/tus-uploader";
 
 interface AdminImageUploaderProps {
   label: string;
@@ -13,6 +39,7 @@ interface AdminImageUploaderProps {
   folder?: string;
   allowVideo?: boolean;
   onDurationDetected?: (duration: string) => void;
+  mobileThresholdMB?: number;
 }
 
 function isVideoSource(urlOrName?: string | null): boolean {
@@ -26,13 +53,8 @@ function isVideoSource(urlOrName?: string | null): boolean {
 
 /**
  * Compresses an image client-side to ensure it never exceeds browser storage limits
- * and avoids payload errors in Supabase.
- * - Resizes images to standard dimensions (max 400px for logos, 1280px for hero)
- * - Compresses to lightweight WebP (or PNG fallback)
- * - Typically shrinks 2-5 MB images down to 15-35 KB (98% reduction)
  */
 async function compressImageClient(file: File, maxDim = 400, quality = 0.85): Promise<string> {
-  // If SVG, preserve raw vector format
   if (file.type === "image/svg+xml") {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -89,12 +111,12 @@ async function compressImageClient(file: File, maxDim = 400, quality = 0.85): Pr
 }
 
 /**
- * Attempts to upload file to Supabase Storage if bucket is configured
+ * Standard Supabase Storage fallback upload for small files or images
  */
-async function uploadToSupabaseBucket(file: File, folder: string): Promise<string | null> {
+async function uploadToSupabaseBucket(file: File | Blob, fileName: string, folder: string): Promise<string | null> {
   if (!supabase) return null;
   try {
-    const fileExt = file.name.split(".").pop() || (file.type.startsWith("video/") ? "mp4" : "png");
+    const fileExt = fileName.split(".").pop() || "png";
     const cleanFileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
     const filePath = `${folder}/${cleanFileName}`;
 
@@ -103,7 +125,7 @@ async function uploadToSupabaseBucket(file: File, folder: string): Promise<strin
       const { data, error } = await supabase.storage.from(bucket).upload(filePath, file, {
         cacheControl: "31536000",
         upsert: true,
-        contentType: file.type || (fileExt === "mp4" ? "video/mp4" : undefined),
+        contentType: file.type || "application/octet-stream",
       });
 
       if (!error && data?.path) {
@@ -114,7 +136,7 @@ async function uploadToSupabaseBucket(file: File, folder: string): Promise<strin
       }
     }
   } catch (err) {
-    console.warn("Supabase Storage bucket upload skipped or not configured:", err);
+    console.warn("Supabase Storage upload fallback notice:", err);
   }
   return null;
 }
@@ -128,19 +150,61 @@ export function AdminImageUploader({
   folder = "clients",
   allowVideo = false,
   onDurationDetected,
+  mobileThresholdMB = 75,
 }: AdminImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState("");
+
+  // Video processing states
+  const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
+  const [videoMetadata, setVideoMetadata] = useState<VideoMetadata | null>(null);
+  const [mobileCheck, setMobileCheck] = useState<ReturnType<typeof checkDeviceCapabilities> | null>(null);
+  const [crfQuality, setCrfQuality] = useState<number>(23); // 20 High, 23 Balanced, 25 Max
+  const [processingStage, setProcessingStage] = useState<
+    "idle" | "ready" | "compressing" | "uploading" | "completed" | "error"
+  >("idle");
+  const [compressionProgress, setCompressionProgress] = useState<CompressionProgress | null>(null);
+  const [uploadPercent, setUploadPercent] = useState<number>(0);
+  const [uploadBytesInfo, setUploadBytesInfo] = useState<{ uploaded: number; total: number } | null>(null);
+  const [compressionResult, setCompressionResult] = useState<CompressionResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Active cancellation hooks
+  const cancelCompressionRef = useRef<(() => void) | null>(null);
+  const cancelUploadRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     setPreview(currentImageUrl || null);
   }, [currentImageUrl]);
 
-  const processAndUploadFile = async (file: File) => {
+  // Clean reset when removing or cancelling
+  const resetVideoWorkflow = () => {
+    if (cancelCompressionRef.current) {
+      cancelCompressionRef.current();
+      cancelCompressionRef.current = null;
+    }
+    if (cancelUploadRef.current) {
+      cancelUploadRef.current();
+      cancelUploadRef.current = null;
+    }
+    setPendingVideoFile(null);
+    setVideoMetadata(null);
+    setMobileCheck(null);
+    setProcessingStage("idle");
+    setCompressionProgress(null);
+    setUploadPercent(0);
+    setUploadBytesInfo(null);
+    setCompressionResult(null);
+    setErrorMessage(null);
+  };
+
+  /**
+   * Main file drop/selection orchestrator
+   */
+  const handleFileSelect = async (file: File) => {
     const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
     const isImage = file.type.startsWith("image/") || file.type === "image/svg+xml";
 
@@ -150,74 +214,108 @@ export function AdminImageUploader({
     }
 
     if (isVideo && !allowVideo) {
-      alert("Video upload is only supported when Media Type is set to Video. Please upload an image.");
+      alert("Video upload is only enabled when Media Type is set to Video.");
       return;
     }
 
-    setIsProcessing(true);
+    // IMAGE BRANCH: Instant canvas compression (< 40KB) + upload
+    if (isImage) {
+      setProcessingStage("compressing");
+      try {
+        const compressedDataUrl = await compressImageClient(file, maxDimension);
+        const cloudUrl = await uploadToSupabaseBucket(file, file.name, folder);
+        const finalUrl = cloudUrl || compressedDataUrl;
+        setPreview(finalUrl);
+        onImageChange(finalUrl);
+      } catch (err: any) {
+        console.error("Image processing error:", err);
+        alert("Could not process image: " + err.message);
+      } finally {
+        setProcessingStage("idle");
+      }
+      return;
+    }
+
+    // VIDEO BRANCH: Probe metadata and prepare capability analysis
+    setProcessingStage("ready");
+    setPendingVideoFile(file);
+    setErrorMessage(null);
 
     try {
-      // 1. If video, auto-detect duration
-      if (isVideo && onDurationDetected && typeof window !== "undefined") {
-        try {
-          const tempUrl = URL.createObjectURL(file);
-          const tempVid = document.createElement("video");
-          tempVid.preload = "metadata";
-          tempVid.onloadedmetadata = () => {
-            URL.revokeObjectURL(tempUrl);
-            const totalSecs = Math.round(tempVid.duration);
-            if (!isNaN(totalSecs) && totalSecs > 0) {
-              const mins = Math.floor(totalSecs / 60);
-              const secs = totalSecs % 60;
-              const formatted = `${mins}:${secs.toString().padStart(2, "0")}`;
-              onDurationDetected(formatted);
-            }
-          };
-          tempVid.src = tempUrl;
-        } catch (durErr) {
-          console.warn("Could not read video duration:", durErr);
-        }
+      const meta = await extractVideoMetadata(file);
+      setVideoMetadata(meta);
+      if (onDurationDetected && meta.durationFormatted) {
+        onDurationDetected(meta.durationFormatted);
       }
 
-      // 2. Upload to Supabase Storage bucket
-      const cloudUrl = await uploadToSupabaseBucket(file, folder);
+      // Check mobile limitations & 75MB threshold
+      const caps = checkDeviceCapabilities(file.size, mobileThresholdMB);
+      setMobileCheck(caps);
+    } catch (err: any) {
+      console.warn("Could not probe video metadata:", err);
+    }
+  };
 
-      if (cloudUrl) {
-        setPreview(cloudUrl);
-        onImageChange(cloudUrl);
-        setIsProcessing(false);
-        return;
+  /**
+   * Executes the video compression pipeline followed by resumable TUS upload
+   */
+  const startCompressionAndUpload = async (skipCompression = false) => {
+    if (!pendingVideoFile) return;
+
+    try {
+      let fileToUpload: File = pendingVideoFile;
+
+      // 1. COMPRESSION STEP (unless skipped by mobile override)
+      if (!skipCompression) {
+        setProcessingStage("compressing");
+        const { promise, cancel } = startVideoCompression({
+          file: pendingVideoFile,
+          settings: { crf: crfQuality },
+          metadata: videoMetadata || undefined,
+          onProgress: (p) => setCompressionProgress(p),
+        });
+
+        cancelCompressionRef.current = cancel;
+        const result = await promise;
+        cancelCompressionRef.current = null;
+
+        setCompressionResult(result);
+        fileToUpload = result.outputFile;
       }
 
-      // 3. Fallback handling
-      if (isVideo) {
-        if (file.size <= 25 * 1024 * 1024) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const res = e.target?.result as string;
-            setPreview(res);
-            onImageChange(res);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("Video exceeds 25MB. Please paste a cloud video URL or ensure network connection.");
-        }
-      } else {
-        const compressedDataUrl = await compressImageClient(file, maxDimension);
-        setPreview(compressedDataUrl);
-        onImageChange(compressedDataUrl);
+      // 2. RESUMABLE TUS UPLOAD (6MB chunks)
+      setProcessingStage("uploading");
+      setUploadPercent(0);
+
+      const tusUploader = createTusUploader({
+        file: fileToUpload,
+        fileName: fileToUpload.name,
+        folder,
+        bucketName: "assets",
+        chunkSize: 6 * 1024 * 1024, // 6 MB chunk size
+        onProgress: (pct, bytesUp, bytesTot) => {
+          setUploadPercent(pct);
+          setUploadBytesInfo({ uploaded: bytesUp, total: bytesTot });
+        },
+        onSuccess: (publicUrl) => {
+          setPreview(publicUrl);
+          onImageChange(publicUrl);
+          setProcessingStage("completed");
+        },
+        onError: (err) => {
+          setProcessingStage("error");
+          setErrorMessage(err.message || "Upload failed. Please check network connection.");
+        },
+      });
+
+      cancelUploadRef.current = tusUploader.abort;
+      await tusUploader.start();
+      cancelUploadRef.current = null;
+    } catch (err: any) {
+      if (err?.message !== "Compression cancelled." && err?.message !== "Upload cancelled by user.") {
+        setProcessingStage("error");
+        setErrorMessage(err.message || "Video processing encountered an error.");
       }
-    } catch (err) {
-      console.error("Media processing error:", err);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const res = e.target?.result as string;
-        setPreview(res);
-        onImageChange(res);
-      };
-      reader.readAsDataURL(file);
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -225,12 +323,13 @@ export function AdminImageUploader({
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processAndUploadFile(e.dataTransfer.files[0]);
+      handleFileSelect(e.dataTransfer.files[0]);
     }
   };
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
+    resetVideoWorkflow();
     setPreview(null);
     onImageChange("");
     if (fileInputRef.current) {
@@ -251,7 +350,9 @@ export function AdminImageUploader({
   return (
     <div className="adm-form-group">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <label className="adm-form-label" style={{ margin: 0 }}>{label}</label>
+        <label className="adm-form-label" style={{ marginBottom: 0 }}>
+          {label}
+        </label>
         <button
           type="button"
           onClick={() => setShowUrlInput(!showUrlInput)}
@@ -293,24 +394,276 @@ export function AdminImageUploader({
         </div>
       )}
 
-      {isProcessing ? (
-        <div
-          className="adm-upload-dropzone"
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}
-        >
-          <Loader2 size={24} className="adm-spin" style={{ color: "var(--adm-primary)", marginBottom: "0.5rem" }} />
-          <span style={{ fontSize: "0.82rem", color: "var(--adm-text-secondary)" }}>
-            Uploading and optimizing media asset...
-          </span>
+      {/* ========================================================================= */}
+      {/* VIDEO WORKFLOW PANEL: Configuration, Progress & Compression Stats          */}
+      {/* ========================================================================= */}
+      {pendingVideoFile && processingStage !== "idle" && (
+        <div className="adm-video-workflow-card">
+          {/* Header & Video Specs */}
+          <div className="adm-video-specs-header">
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div className="adm-video-icon-pill">
+                <VideoIcon size={16} />
+              </div>
+              <div>
+                <div className="adm-video-filename" title={pendingVideoFile.name}>
+                  {pendingVideoFile.name}
+                </div>
+                <div className="adm-video-badges-row">
+                  <span className="adm-badge adm-badge-original">
+                    Original: {(pendingVideoFile.size / (1024 * 1024)).toFixed(1)} MB
+                  </span>
+                  {videoMetadata && (
+                    <>
+                      <span className="adm-badge adm-badge-resolution">
+                        {videoMetadata.width} × {videoMetadata.height} ({videoMetadata.aspectRatio})
+                      </span>
+                      <span className="adm-badge adm-badge-duration">
+                        {videoMetadata.durationFormatted}
+                      </span>
+                      {videoMetadata.isPortrait && (
+                        <span className="adm-badge adm-badge-portrait">9:16 Reel</span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={resetVideoWorkflow}
+              className="adm-icon-btn danger"
+              title="Cancel and remove"
+            >
+              <X size={15} />
+            </button>
+          </div>
+
+          {/* Mobile Resource Advisory Warning */}
+          {mobileCheck?.isLargeForDevice && processingStage === "ready" && (
+            <div className="adm-mobile-warning-box">
+              <AlertTriangle size={16} className="adm-warning-icon" />
+              <div>
+                <div style={{ fontWeight: 600, color: "var(--adm-warning)" }}>Mobile Resource Alert</div>
+                <div style={{ fontSize: "0.76rem", color: "var(--adm-text-secondary)", marginTop: "2px" }}>
+                  {mobileCheck.warningMessage}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STAGE 1: Ready to Compress — Quality Selection & Trigger */}
+          {processingStage === "ready" && (
+            <div className="adm-video-options-panel">
+              <div className="adm-quality-control-block">
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 600 }}>
+                  <Sliders size={14} style={{ color: "var(--adm-primary)" }} />
+                  <span>Compression Quality (H.264 / AAC):</span>
+                </div>
+
+                <div className="adm-quality-selector-grid">
+                  <button
+                    type="button"
+                    className={`adm-quality-option ${crfQuality === 20 ? "is-selected" : ""}`}
+                    onClick={() => setCrfQuality(20)}
+                  >
+                    <span className="quality-title">High Quality</span>
+                    <span className="quality-desc">CRF 20 (~55% reduction)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`adm-quality-option ${crfQuality === 23 ? "is-selected" : ""}`}
+                    onClick={() => setCrfQuality(23)}
+                  >
+                    <span className="quality-title">Balanced (Recommended)</span>
+                    <span className="quality-desc">CRF 23 (~75% reduction)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`adm-quality-option ${crfQuality === 25 ? "is-selected" : ""}`}
+                    onClick={() => setCrfQuality(25)}
+                  >
+                    <span className="quality-title">Maximum Savings</span>
+                    <span className="quality-desc">CRF 25 (~85% reduction)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="adm-video-actions-row">
+                {mobileCheck?.isLargeForDevice ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => startCompressionAndUpload(true)}
+                      className="adm-btn adm-btn-secondary"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      Direct Upload (Skip Compression)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => startCompressionAndUpload(false)}
+                      className="adm-btn adm-btn-primary"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      <Zap size={14} />
+                      <span>Compress &amp; Upload</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={resetVideoWorkflow}
+                      className="adm-btn adm-btn-secondary"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => startCompressionAndUpload(false)}
+                      className="adm-btn adm-btn-primary"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      <Sparkles size={14} />
+                      <span>Start Compression &amp; Upload</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* STAGE 2: Compressing Progress Bar */}
+          {processingStage === "compressing" && (
+            <div className="adm-video-progress-panel">
+              <div className="adm-progress-top">
+                <span className="adm-progress-label">
+                  <Loader2 size={13} className="adm-spin" style={{ color: "var(--adm-primary)" }} />
+                  <span>{compressionProgress?.message || "Compressing video in browser..."}</span>
+                </span>
+                <span className="adm-progress-percent">
+                  {compressionProgress?.percent || 0}%
+                </span>
+              </div>
+
+              <div className="adm-progress-track">
+                <div
+                  className="adm-progress-fill"
+                  style={{ width: `${compressionProgress?.percent || 0}%` }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                <span style={{ fontSize: "0.72rem", color: "var(--adm-text-muted)" }}>
+                  {compressionProgress?.etaSeconds ? `Estimated remaining: ~${compressionProgress.etaSeconds}s` : "Encoding H.264 / AAC + faststart..."}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => cancelCompressionRef.current?.()}
+                  className="adm-btn adm-btn-danger adm-btn-sm"
+                >
+                  Cancel Compression
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STAGE 3: TUS Resumable Upload Progress Bar */}
+          {processingStage === "uploading" && (
+            <div className="adm-video-progress-panel">
+              <div className="adm-progress-top">
+                <span className="adm-progress-label">
+                  <UploadCloud size={14} style={{ color: "var(--adm-success)" }} />
+                  <span>Uploading to Supabase Storage (6MB chunks)...</span>
+                </span>
+                <span className="adm-progress-percent" style={{ color: "var(--adm-success)" }}>
+                  {uploadPercent}%
+                </span>
+              </div>
+
+              <div className="adm-progress-track">
+                <div
+                  className="adm-progress-fill is-uploading"
+                  style={{ width: `${uploadPercent}%` }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                <span style={{ fontSize: "0.72rem", color: "var(--adm-text-muted)" }}>
+                  {uploadBytesInfo
+                    ? `${(uploadBytesInfo.uploaded / (1024 * 1024)).toFixed(1)} MB / ${(uploadBytesInfo.total / (1024 * 1024)).toFixed(1)} MB`
+                    : "Sending chunks..."}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => cancelUploadRef.current?.()}
+                  className="adm-btn adm-btn-danger adm-btn-sm"
+                >
+                  Cancel Upload
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STAGE 4: Completed Compression & Upload Success Banner */}
+          {processingStage === "completed" && compressionResult && (
+            <div className="adm-video-completed-banner">
+              <CheckCircle2 size={18} style={{ color: "var(--adm-success)", flexShrink: 0 }} />
+              <div>
+                <div style={{ fontWeight: 600, color: "#FFFFFF", fontSize: "0.82rem" }}>
+                  Optimized &amp; Uploaded to Supabase!
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "var(--adm-text-secondary)", marginTop: "2px" }}>
+                  {compressionResult.isFallbackOriginal ? (
+                    <span>Original was already optimal: {(compressionResult.originalSizeBytes / (1024 * 1024)).toFixed(1)} MB</span>
+                  ) : (
+                    <span>
+                      {(compressionResult.originalSizeBytes / (1024 * 1024)).toFixed(1)} MB →{" "}
+                      <strong>{(compressionResult.compressedSizeBytes / (1024 * 1024)).toFixed(1)} MB</strong>{" "}
+                      <span className="adm-savings-pill">-{compressionResult.reductionPercentage}% saved</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {processingStage === "error" && errorMessage && (
+            <div className="adm-video-error-box">
+              <AlertTriangle size={16} style={{ color: "var(--adm-danger)", flexShrink: 0 }} />
+              <div style={{ fontSize: "0.78rem", color: "var(--adm-danger)" }}>
+                {errorMessage}
+              </div>
+              <button
+                type="button"
+                onClick={resetVideoWorkflow}
+                className="adm-btn adm-btn-secondary adm-btn-sm"
+                style={{ marginLeft: "auto" }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </div>
-      ) : preview ? (
+      )}
+
+      {/* ========================================================================= */}
+      {/* STANDARD MEDIA PREVIEW OR DROPZONE                                       */}
+      {/* ========================================================================= */}
+      {preview ? (
         <div className="adm-image-preview-box" style={{ position: "relative", backgroundColor: "#000000", minHeight: "140px" }}>
           {isVideoSource(preview) ? (
             <video
               src={preview}
               controls
               playsInline
-              style={{ maxHeight: "160px", maxWidth: "100%", objectFit: "contain", borderRadius: "var(--adm-radius-md)" }}
+              style={{ maxHeight: "190px", maxWidth: "100%", objectFit: "contain", borderRadius: "var(--adm-radius-md)" }}
             />
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -347,11 +700,11 @@ export function AdminImageUploader({
             }}
           >
             {isVideoSource(preview)
-              ? (preview.startsWith("http") ? "Video Media (Supabase Cloud)" : "Video File Loaded")
+              ? (preview.startsWith("http") ? "Compressed MP4 (Supabase Cloud)" : "Video File Loaded")
               : (preview.startsWith("http") ? "Cloud URL" : "Optimized Asset (< 40KB)")}
           </div>
         </div>
-      ) : (
+      ) : !pendingVideoFile ? (
         <div
           className="adm-upload-dropzone"
           style={isDragging ? { borderColor: "var(--adm-primary)", backgroundColor: "var(--adm-primary-subtle)" } : {}}
@@ -366,7 +719,7 @@ export function AdminImageUploader({
           <input
             type="file"
             ref={fileInputRef}
-            onChange={(e) => e.target.files?.[0] && processAndUploadFile(e.target.files[0])}
+            onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
             accept={allowVideo ? "image/*,video/*,.mp4,.webm,.mov,.m4v,.ogg,.svg" : "image/*,.svg"}
             style={{ display: "none" }}
           />
@@ -375,12 +728,14 @@ export function AdminImageUploader({
           </div>
           <div>
             <div className="adm-upload-text">
-              {allowVideo ? "Click to upload video or graphic, or drag & drop" : "Click to upload or drag & drop"}
+              {allowVideo ? "Click to upload video (MP4, MOV) or graphic, or drag & drop" : "Click to upload or drag & drop"}
             </div>
-            <div className="adm-upload-hint">{helperText}</div>
+            <div className="adm-upload-hint">
+              {allowVideo ? "Videos are automatically compressed via FFmpeg & uploaded via TUS" : helperText}
+            </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
