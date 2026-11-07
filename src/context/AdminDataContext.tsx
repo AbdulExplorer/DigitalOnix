@@ -202,7 +202,20 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
       const savedEnquiries = localStorage.getItem(`${STORAGE_PREFIX}enquiries`);
       if (savedEnquiries) {
         const parsed: AdminEnquiry[] = JSON.parse(savedEnquiries);
-        setEnquiries(parsed.filter((item) => !isLegacyMockId(item.id)));
+        const filtered = parsed.filter((item) => !isLegacyMockId(item.id));
+        const seen = new Set<string>();
+        const uniqueEnquiries: AdminEnquiry[] = [];
+        for (const item of filtered) {
+          const contactKey = (item.email || item.phone || "").trim().toLowerCase();
+          const nameKey = item.name.trim().toLowerCase();
+          const serviceKey = item.service.trim().toLowerCase();
+          const dedupeKey = `${nameKey}|${contactKey}|${serviceKey}`;
+          if (!seen.has(dedupeKey)) {
+            seen.add(dedupeKey);
+            uniqueEnquiries.push(item);
+          }
+        }
+        setEnquiries(uniqueEnquiries);
       }
 
       const savedContent = localStorage.getItem(`${STORAGE_PREFIX}content`);
@@ -336,7 +349,7 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
         } catch {}
       }
 
-      // 5. Enquiries (From Supabase Only)
+      // 5. Enquiries (From Supabase Only, automatically deduplicated)
       if (enqRes.status === "fulfilled" && enqRes.value.data) {
         const mapped: AdminEnquiry[] = enqRes.value.data.map((row: any) => ({
           id: row.id,
@@ -349,9 +362,24 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           submittedAt: row.submitted_at || new Date().toISOString(),
           notes: row.notes,
         }));
-        setEnquiries(mapped);
+
+        // Deduplicate enquiries so a single person's duplicate submission is never stored or displayed twice
+        const seen = new Set<string>();
+        const uniqueEnquiries: AdminEnquiry[] = [];
+        for (const item of mapped) {
+          const contactKey = (item.email || item.phone || "").trim().toLowerCase();
+          const nameKey = item.name.trim().toLowerCase();
+          const serviceKey = item.service.trim().toLowerCase();
+          const dedupeKey = `${nameKey}|${contactKey}|${serviceKey}`;
+          if (!seen.has(dedupeKey)) {
+            seen.add(dedupeKey);
+            uniqueEnquiries.push(item);
+          }
+        }
+
+        setEnquiries(uniqueEnquiries);
         try {
-          localStorage.setItem(`${STORAGE_PREFIX}enquiries`, JSON.stringify(mapped));
+          localStorage.setItem(`${STORAGE_PREFIX}enquiries`, JSON.stringify(uniqueEnquiries));
         } catch {}
       }
 
@@ -742,6 +770,22 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
 
   // Enquiries CRUD (aligned with user's enquiries table: uuid id, email & message not null)
   const addEnquiry = async (item: Omit<AdminEnquiry, "id" | "submittedAt">) => {
+    // Prevent duplicate enquiry if the same person already has this inquiry
+    const contactKey = (item.email || item.phone || "").trim().toLowerCase();
+    const nameKey = item.name.trim().toLowerCase();
+    const serviceKey = (item.service || "").trim().toLowerCase();
+    const isDuplicate = enquiries.some((existing) => {
+      const eContact = (existing.email || existing.phone || "").trim().toLowerCase();
+      const eName = existing.name.trim().toLowerCase();
+      const eService = (existing.service || "").trim().toLowerCase();
+      return eName === nameKey && eContact === contactKey && eService === serviceKey;
+    });
+
+    if (isDuplicate) {
+      console.warn("Duplicate enquiry submission detected; suppressed duplicate entry.");
+      return;
+    }
+
     const newId = generateUUID();
     const newEnquiry: AdminEnquiry = {
       ...item,

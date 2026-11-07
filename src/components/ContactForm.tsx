@@ -21,7 +21,7 @@ interface FormErrors {
 }
 
 export function ContactForm() {
-  const { addEnquiry, services } = useAdminData();
+  const { services } = useAdminData();
   const activeServices = services.filter((s) => s.status === "active");
 
   const [formData, setFormData] = useState<FormState>({
@@ -89,16 +89,10 @@ export function ContactForm() {
         throw new Error(result.error || "Failed to submit quote inquiry.");
       }
 
-      // Sync into admin enquiries store in real time
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contact);
-      addEnquiry({
-        name: formData.name,
-        email: isEmail ? formData.contact : "",
-        phone: !isEmail ? formData.contact : "",
-        service: formData.service,
-        message: formData.description,
-        status: "new",
-      });
+      // Notify any open admin panel tabs to refresh data from Supabase in real time
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("digitalonix_admin_sync"));
+      }
 
       setSuccessMessage(result.message);
       setFormData({

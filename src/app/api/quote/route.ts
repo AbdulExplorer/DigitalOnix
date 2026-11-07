@@ -56,14 +56,29 @@ export async function POST(request: Request) {
     if (supabase) {
       try {
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
-        await supabase.from("enquiries").insert({
-          name,
-          email: isEmail ? contact : "client@digitalonix.in",
-          phone: !isEmail ? contact : null,
-          service,
-          message: description || "Inquiry from website quote form",
-          status: "new",
-        });
+        const emailVal = isEmail ? contact : "client@digitalonix.in";
+        const phoneVal = !isEmail ? contact : null;
+
+        // Check if an identical submission was already recorded in the last 60 seconds
+        const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
+        const { data: existing } = await supabase
+          .from("enquiries")
+          .select("id")
+          .eq("name", name)
+          .eq("service", service)
+          .gte("submitted_at", oneMinuteAgo)
+          .limit(1);
+
+        if (!existing || existing.length === 0) {
+          await supabase.from("enquiries").insert({
+            name,
+            email: emailVal,
+            phone: phoneVal,
+            service,
+            message: description || "Inquiry from website quote form",
+            status: "new",
+          });
+        }
       } catch (dbErr) {
         console.error("Failed to persist inquiry to database:", dbErr);
       }
