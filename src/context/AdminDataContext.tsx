@@ -11,6 +11,7 @@ import {
   EnquiryStatus,
 } from "@/types/admin";
 import { siteConfig } from "@/data/config";
+import { servicesData } from "@/data/services";
 import { supabase } from "@/lib/supabase-client";
 
 export interface AdminDataContextType {
@@ -84,15 +85,27 @@ function isLegacyMockId(id: string): boolean {
   return (
     id.startsWith("client-") ||
     id.startsWith("p-") ||
-    id.startsWith("svc-0") ||
     id.startsWith("test-") ||
     id.startsWith("enq-10")
   );
 }
 
-// Initial Collections: All Empty (Strictly data from Supabase only!)
+// Agency Services: Retained with all 12 core agency capabilities
+const initialServices: AdminService[] = servicesData.map((svc, idx) => ({
+  id: svc.id,
+  title: svc.title,
+  category: svc.category,
+  shortDescription: svc.shortDescription,
+  detailedDescription: svc.detailedDescription,
+  iconName: svc.iconName,
+  features: svc.features,
+  deliverables: svc.deliverables,
+  status: "active",
+  order: idx,
+}));
+
+// Initial Collections: Projects, Testimonials, Clients, Enquiries populated strictly from Supabase
 const initialProjects: AdminProject[] = [];
-const initialServices: AdminService[] = [];
 const initialTestimonials: AdminTestimonial[] = [];
 const initialClients: AdminClient[] = [];
 const initialEnquiries: AdminEnquiry[] = [];
@@ -160,8 +173,18 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
 
       const savedServices = localStorage.getItem(`${STORAGE_PREFIX}services`);
       if (savedServices) {
-        const parsed: AdminService[] = JSON.parse(savedServices);
-        setServices(parsed.filter((item) => !isLegacyMockId(item.id)));
+        try {
+          const parsed: AdminService[] = JSON.parse(savedServices);
+          if (parsed && parsed.length > 0) {
+            setServices(parsed);
+          } else {
+            setServices(initialServices);
+          }
+        } catch {
+          setServices(initialServices);
+        }
+      } else {
+        setServices(initialServices);
       }
 
       const savedTestimonials = localStorage.getItem(`${STORAGE_PREFIX}testimonials`);
@@ -230,8 +253,8 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
         } catch {}
       }
 
-      // 2. Services (From Supabase Only)
-      if (svcRes.status === "fulfilled" && svcRes.value.data) {
+      // 2. Services (From Supabase or fallback to all 12 agency services)
+      if (svcRes.status === "fulfilled" && svcRes.value.data && svcRes.value.data.length > 0) {
         const mapped: AdminService[] = svcRes.value.data.map((row: any) => ({
           id: row.id,
           title: row.title,
@@ -248,6 +271,34 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
         try {
           localStorage.setItem(`${STORAGE_PREFIX}services`, JSON.stringify(mapped));
         } catch {}
+      } else if (svcRes.status === "fulfilled" && (!svcRes.value.data || svcRes.value.data.length === 0)) {
+        setServices(initialServices);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}services`, JSON.stringify(initialServices));
+        } catch {}
+        if (supabase) {
+          supabase
+            .from("services")
+            .upsert(
+              initialServices.map((svc, idx) => ({
+                id: svc.id,
+                title: svc.title,
+                category: svc.category,
+                short_description: svc.shortDescription,
+                detailed_description: svc.detailedDescription,
+                icon_name: svc.iconName,
+                features: svc.features,
+                deliverables: svc.deliverables,
+                status: svc.status,
+                sort_order: idx,
+              }))
+            )
+            .then(({ error }) => {
+              if (error) {
+                console.warn("Could not sync services to Supabase:", error.message);
+              }
+            });
+        }
       }
 
       // 3. Testimonials (From Supabase Only)
