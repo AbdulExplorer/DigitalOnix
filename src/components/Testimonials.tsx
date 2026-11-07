@@ -170,21 +170,22 @@ export function Testimonials() {
                 role="article"
                 aria-label={`Review by ${item.author}`}
               >
-                {/* Optional Video Area Above Card Content */}
-                {item.videoUrl && (
-                  <div className="testimonial-video-area">
-                    <video
-                      src={item.videoUrl}
-                      controls
-                      playsInline
-                      preload="metadata"
-                      className="testimonial-video-player"
-                      onPlay={() => setIsPaused(true)}
-                      onPause={() => setIsPaused(false)}
-                      onEnded={() => setIsPaused(false)}
-                    />
-                  </div>
-                )}
+                {/* Video Area Above Card Content */}
+                <div className="testimonial-video-area">
+                  <video
+                    src={
+                      item.videoUrl ||
+                      "https://wlysuqlciiekbqhrmjhy.supabase.co/storage/v1/object/public/assets/testimonials/1794079229796-0f950p.MP4"
+                    }
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="testimonial-video-player"
+                    onPlay={() => setIsPaused(true)}
+                    onPause={() => setIsPaused(false)}
+                    onEnded={() => setIsPaused(false)}
+                  />
+                </div>
 
                 {/* Topbar: Stars + Quote Emblem */}
                 <div className="testimonial-card-topbar">

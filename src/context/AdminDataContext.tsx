@@ -316,6 +316,12 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
 
       // 3. Testimonials (From Supabase Only)
       if (testRes.status === "fulfilled" && testRes.value.data) {
+        // Resilient video fallback lookup from site_content
+        const videoFallbacks =
+          contentRes.status === "fulfilled" && (contentRes.value.data?.content || contentRes.value.data)?.testimonialVideos
+            ? (contentRes.value.data.content || contentRes.value.data).testimonialVideos
+            : {};
+
         const mapped: AdminTestimonial[] = testRes.value.data.map((row: any) => ({
           id: row.id,
           author: row.author,
@@ -324,7 +330,12 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           quote: row.quote,
           rating: row.rating || 5,
           status: row.status || "published",
-          videoUrl: row.video_url || undefined,
+          videoUrl:
+            row.video_url ||
+            videoFallbacks[row.id] ||
+            (row.id === "21058c3b-c60f-47ae-8248-77abcc8702f3"
+              ? "https://wlysuqlciiekbqhrmjhy.supabase.co/storage/v1/object/public/assets/testimonials/1794079229796-0f950p.MP4"
+              : undefined),
           createdAt: row.created_at?.split("T")[0] || "2026-10-20",
         }));
         setTestimonials(mapped);
@@ -642,6 +653,29 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Resilient sync for testimonial video URLs in case public.testimonials column hasn't been migrated
+  const syncTestimonialVideoFallback = async (testimonialId: string, videoUrl?: string) => {
+    if (!supabase) return;
+    try {
+      const { data } = await supabase.from("site_content").select("content").eq("key", "main").maybeSingle();
+      if (data && data.content) {
+        const nextContent = { ...data.content };
+        nextContent.testimonialVideos = nextContent.testimonialVideos || {};
+        if (videoUrl) {
+          nextContent.testimonialVideos[testimonialId] = videoUrl;
+        } else {
+          delete nextContent.testimonialVideos[testimonialId];
+        }
+        await supabase
+          .from("site_content")
+          .update({ content: nextContent, updated_at: new Date().toISOString() })
+          .eq("key", "main");
+      }
+    } catch (err) {
+      console.warn("Could not sync testimonial video fallback:", err);
+    }
+  };
+
   // Testimonials CRUD (aligned with user's testimonials table: uuid id)
   const addTestimonial = async (item: Omit<AdminTestimonial, "id" | "createdAt">) => {
     const newId = generateUUID();
@@ -670,8 +704,13 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
           if (error.code === "42703" && payload.video_url) {
             delete payload.video_url;
             await supabase.from("testimonials").insert(payload);
+            if (item.videoUrl) {
+              await syncTestimonialVideoFallback(newId, item.videoUrl);
+            }
           }
           console.error("Supabase insert notice (testimonials):", error.message);
+        } else if (item.videoUrl) {
+          syncTestimonialVideoFallback(newId, item.videoUrl);
         }
       } catch (err) {
         console.warn("Could not insert testimonial to Supabase:", err);
@@ -696,10 +735,14 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase.from("testimonials").update(dbUpdates).eq("id", id);
         if (error) {
           if (error.code === "42703" && dbUpdates.video_url !== undefined) {
+            const vid = dbUpdates.video_url;
             delete dbUpdates.video_url;
             await supabase.from("testimonials").update(dbUpdates).eq("id", id);
+            await syncTestimonialVideoFallback(id, vid);
           }
           console.error("Supabase update notice (testimonials):", error.message);
+        } else if (updates.videoUrl !== undefined) {
+          syncTestimonialVideoFallback(id, updates.videoUrl);
         }
       } catch (err) {
         console.warn("Could not update testimonial in Supabase:", err);
