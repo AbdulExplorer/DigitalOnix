@@ -275,6 +275,32 @@
   padding: 0.45rem;
   border-radius: var(--adm-radius-md);
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Digital Onix Brand in Mobile Topbar */
+.admin-topbar-brand {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.admin-topbar-brand-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  border-radius: var(--adm-radius-sm);
+}
+
+.admin-topbar-brand-text {
+  font-family: var(--adm-font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
 }
 
 .admin-breadcrumbs {
@@ -293,7 +319,81 @@
 .admin-topbar-right {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+}
+
+/* Visit Profile / Live Site Pill Button */
+.admin-topbar-visit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--adm-radius-full);
+  background-color: var(--adm-card);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-text);
+  font-size: 0.785rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.admin-topbar-visit-btn:hover {
+  border-color: var(--adm-primary);
+  background-color: var(--adm-card-hover);
+  color: #FFFFFF;
+}
+
+.admin-topbar-visit-icon {
+  color: var(--adm-primary);
+}
+
+.admin-topbar-visit-ext {
+  color: var(--adm-text-muted);
+}
+
+/* User Profile Avatar Button */
+.admin-topbar-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.65rem 0.25rem 0.35rem;
+  border-radius: var(--adm-radius-full);
+  background-color: var(--adm-card);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-topbar-profile-btn:hover {
+  border-color: var(--adm-border-light);
+  background-color: var(--adm-card-hover);
+}
+
+.admin-topbar-avatar-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--adm-primary), #4C1D95);
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px var(--adm-primary-glow);
+}
+
+.admin-topbar-user-name {
+  font-size: 0.785rem;
+  font-weight: 600;
+  color: var(--adm-text);
+}
+
+.admin-topbar-chevron {
+  color: var(--adm-text-muted);
 }
 
 .admin-live-site-pill {
@@ -431,6 +531,20 @@
   font-size: 0.785rem;
 }
 
+/* Dashboard Grids */
+.admin-dashboard-two-col {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
 /* Metric / Stats Cards */
 .admin-stats-grid {
   display: grid;
@@ -541,10 +655,12 @@
 .admin-table-wrap {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-table {
   width: 100%;
+  min-width: 680px;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.85rem;
@@ -1007,39 +1123,290 @@
   border-bottom-color: var(--adm-primary);
 }
 
-/* Mobile Responsiveness */
+.admin-sidebar-close-btn {
+  display: none;
+}
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVENESS
+   Breakpoints: 1024px (Tablets / Laptops), 768px (Small Tablets / Large Phones), 480px (Phones)
+   ========================================================================== */
+
 @media (max-width: 1024px) {
   .admin-sidebar {
     transform: translateX(-100%);
+    width: 280px;
+    max-width: 85vw;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.7);
   }
 
   .admin-sidebar.open {
     transform: translateX(0);
   }
 
+  .admin-sidebar-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .admin-sidebar-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.65);
+    background-color: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 45;
   }
 
   .admin-main-wrap {
     margin-left: 0;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .admin-topbar {
+    padding: 0 1rem;
+    height: 62px;
+  }
+
+  .admin-topbar-left {
+    gap: 0.75rem;
+  }
+
+  /* Show Digital Onix Logo in Mobile Header */
+  .admin-topbar-brand {
+    display: inline-flex;
+  }
+
+  /* Hide Breadcrumbs on Phone Header as requested */
+  .admin-breadcrumbs {
+    display: none !important;
+  }
+
+  /* Show only User Profile Logo / Avatar */
+  .admin-topbar-user-name,
+  .admin-topbar-chevron {
+    display: none !important;
+  }
+
+  .admin-topbar-profile-btn {
+    padding: 2px;
+    background: transparent;
+    border: none;
+  }
+
+  .admin-topbar-avatar-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .admin-topbar-visit-btn {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    gap: 0.35rem;
   }
 
   .admin-mobile-toggle-btn {
-    display: flex;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .admin-page-container {
     padding: 1.25rem;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .admin-dashboard-two-col {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 
   .adm-form-grid-2,
   .adm-form-grid-3 {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-stat-card {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .admin-stat-value {
+    font-size: 1.5rem;
+  }
+
+  .admin-stat-icon-wrap {
+    width: 32px;
+    height: 32px;
+  }
+
+  .admin-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-page-title-wrap h1 {
+    font-size: 1.4rem;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .admin-header-actions .adm-btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .admin-toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .admin-search-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .admin-filter-pills {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.35rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .adm-modal-backdrop {
+    padding: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .adm-modal-box {
+    max-height: 92vh;
+    border-radius: var(--adm-radius-lg) var(--adm-radius-lg) 0 0;
+    width: 100%;
+  }
+
+  .adm-modal-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .adm-modal-body {
+    padding: 1rem 1.25rem;
+  }
+
+  .adm-modal-footer {
+    padding: 0.85rem 1.25rem;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+
+  .adm-modal-footer .adm-btn {
+    width: 100%;
+  }
+
+  .adm-toast-container {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .adm-toast {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-topbar {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
+    height: 58px;
+  }
+
+  .admin-topbar-left {
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .admin-topbar-brand-img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .admin-topbar-brand-text {
+    font-size: 0.88rem;
+  }
+
+  .admin-topbar-right {
+    gap: 0.5rem;
+  }
+
+  .admin-topbar-visit-ext {
+    display: none;
+  }
+
+  .admin-topbar-visit-btn {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.725rem;
+  }
+
+  .admin-page-container {
+    padding: 0.85rem;
+  }
+
+  .admin-card-header {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .admin-card-body {
+    padding: 1rem;
+  }
+
+  .admin-projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stat-label {
+    font-size: 0.72rem;
+  }
+
+  .admin-stat-value {
+    font-size: 1.35rem;
+  }
+
+  .adm-tabs-nav {
+    gap: 0.25rem;
+  }
+
+  .adm-tab-item {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.785rem;
   }
 }
 

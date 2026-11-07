@@ -105,8 +105,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           {/* Close button for mobile */}
           <button
             onClick={onClose}
-            className="adm-icon-btn admin-mobile-toggle-btn"
-            style={{ display: isOpen ? "flex" : "none" }}
+            className="adm-icon-btn admin-sidebar-close-btn"
             aria-label="Close sidebar"
           >
             <X size={16} />

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ExternalLink, ShieldCheck, Key, LogOut, ChevronDown } from "lucide-react";
+import { Menu, ExternalLink, Globe, Key, LogOut, ChevronDown } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
@@ -45,6 +45,7 @@ export function AdminTopbar({ onOpenMobileSidebar }: AdminTopbarProps) {
     <>
       <header className="admin-topbar">
         <div className="admin-topbar-left">
+          {/* 1. Mobile Hamburger Button */}
           <button
             onClick={onOpenMobileSidebar}
             className="admin-mobile-toggle-btn"
@@ -53,51 +54,58 @@ export function AdminTopbar({ onOpenMobileSidebar }: AdminTopbarProps) {
             <Menu size={20} />
           </button>
 
+          {/* 2. Digital Onix Brand Logo (Shown on mobile / phone) */}
+          <Link href="/admin" className="admin-topbar-brand" aria-label="Digitalonix Admin">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="Digitalonix Logo"
+              className="admin-topbar-brand-img"
+            />
+            <span className="admin-topbar-brand-text">
+              Digital<span style={{ color: "var(--adm-primary)" }}>onix</span>
+            </span>
+          </Link>
+
+          {/* Desktop Breadcrumbs (Hidden on phone) */}
           <nav className="admin-breadcrumbs" aria-label="Breadcrumbs">
-            <span>Admin</span>
-            <span style={{ color: "var(--adm-border-light)" }}>/</span>
-            <strong>{currentPageTitle}</strong>
+            <span className="admin-breadcrumb-root">Admin</span>
+            <span className="admin-breadcrumb-sep" style={{ color: "var(--adm-border-light)" }}>/</span>
+            <strong className="admin-breadcrumb-current">{currentPageTitle}</strong>
           </nav>
         </div>
 
         <div className="admin-topbar-right">
-          {/* View Live Public Site */}
+          {/* 3. Visit Profile / Live Site Link */}
           <Link
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="adm-btn adm-btn-secondary adm-btn-sm"
-            title="Open Public Website in new tab"
+            className="admin-topbar-visit-btn"
+            title="Visit public website / agency profile"
           >
-            <span>Live Site</span>
-            <ExternalLink size={14} />
+            <Globe size={14} className="admin-topbar-visit-icon" />
+            <span className="admin-topbar-visit-label">Visit Profile</span>
+            <ExternalLink size={12} className="admin-topbar-visit-ext" />
           </Link>
 
-          {/* User Profile Menu */}
+          {/* 4. User Profile Logo & Menu */}
           <div ref={menuRef} style={{ position: "relative" }}>
             <button
               type="button"
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.35rem 0.75rem",
-                borderRadius: "var(--adm-radius-full)",
-                backgroundColor: "var(--adm-card)",
-                border: "1px solid var(--adm-border)",
-                color: "var(--adm-text)",
-                cursor: "pointer",
-                transition: "border-color 0.15s ease",
-              }}
+              className="admin-topbar-profile-btn"
               aria-expanded={isUserMenuOpen}
               aria-haspopup="true"
+              title="Administrator Profile"
             >
-              <ShieldCheck size={15} style={{ color: "var(--adm-primary)" }} />
-              <span style={{ fontSize: "0.785rem", fontWeight: 600 }}>
+              <div className="admin-topbar-avatar-badge">
+                {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
+              </div>
+              <span className="admin-topbar-user-name">
                 {user?.name?.split(" ")[0] || "Admin"}
               </span>
-              <ChevronDown size={14} style={{ color: "var(--adm-text-muted)" }} />
+              <ChevronDown size={14} className="admin-topbar-chevron" />
             </button>
 
             {isUserMenuOpen && (

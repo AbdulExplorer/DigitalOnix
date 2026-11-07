@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Main Grid: Recent Enquiries & Quick Management */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+      <div className="admin-dashboard-two-col">
         {/* Recent Enquiries Table */}
         <div className="admin-card" style={{ marginBottom: 0 }}>
           <div className="admin-card-header">
@@ -292,7 +292,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="admin-card-body" style={{ padding: "1.25rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
+          <div className="admin-projects-grid">
             {recentProjects.map((proj) => (
               <div
                 key={proj.id}
