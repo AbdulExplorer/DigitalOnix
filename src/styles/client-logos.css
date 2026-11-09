@@ -45,7 +45,7 @@
   pointer-events: none;
 }
 
-.marquee-outer-container::before {
+/* .marquee-outer-container::before {
   left: 0;
   background: linear-gradient(to right, #08090C 0%, rgba(8, 9, 12, 0) 100%);
 }
@@ -53,7 +53,7 @@
 .marquee-outer-container::after {
   right: 0;
   background: linear-gradient(to left, #08090C 0%, rgba(8, 9, 12, 0) 100%);
-}
+} */
 
 /* 60fps/120fps GPU-Accelerated Marquee Strip (No mask-image, zero lag) */
 .marquee-inner-strip {
@@ -79,8 +79,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 180px;
-  height: 80px;
+  width: 150px;
+  height: 100px;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -111,8 +111,8 @@
 
 /* Authentic, Crisp Client Logos (Annoying filter removed, true brand colors & contrast) */
 .logo-symbol img {
-  max-width: 155px;
-  max-height: 68px;
+  /* max-width: 155px;
+  max-height: 68px; */
   width: auto;
   height: auto;
   object-fit: contain;
@@ -132,8 +132,8 @@
 
 /* Vector Fallback Icons Sized to Match */
 .logo-symbol svg {
-  width: 48px;
-  height: 48px;
+  /* width: 48px;
+  height: 48px; */
   display: block;
   color: var(--color-primary, #8B3DFF);
   opacity: 0.9;
@@ -150,6 +150,7 @@
   0% {
     transform: translate3d(0, 0, 0);
   }
+
   100% {
     transform: translate3d(-50%, 0, 0);
   }
@@ -177,8 +178,8 @@
 
   /* Sized prominently for mobile screens with equal optical balance */
   .logo-badge {
-    width: 140px;
-    height: 64px;
+    width: 120px;
+    height: 120px;
   }
 
   .logo-symbol {
@@ -186,13 +187,13 @@
   }
 
   .logo-symbol img {
-    max-width: 125px;
-    max-height: 54px;
+    max-width: 200px;
+    max-height: 100px;
   }
 
   .logo-symbol svg {
-    width: 40px;
-    height: 40px;
+    width: 200px;
+    height: 100px;
   }
 }
 

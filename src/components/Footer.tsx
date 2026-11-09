@@ -17,8 +17,8 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt="Digitalonix Logo"
-                width={38}
-                height={38}
+                width={50}
+                height={50}
                 className="brand-logo-img"
               />
               <span>
