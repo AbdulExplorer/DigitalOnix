@@ -169,6 +169,18 @@ button {
   z-index: var(--z-base);
 }
 
+@media (min-width: 1051px) {
+  .container,
+  .container-wide {
+    width: calc(100% - 200px);
+    max-width: calc(100% - 200px);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 .section-padding {
   padding-top: var(--space-4xl);
   padding-bottom: var(--space-4xl);
