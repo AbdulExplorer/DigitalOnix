@@ -1,222 +1,622 @@
+/* =============================================================================
+   DIGITALONIX — EDITORIAL HERO SECTION
+   Design Direction: High-End Creative & Digital Studio Architecture
+   Typography: DM Serif Display (Headlines) & DM Sans (Supporting Body)
+   Grid: Asymmetric Two-Column Composition with 3 Overlapping Media Frames
+   ============================================================================= */
+
 .hero-section {
   position: relative;
-  min-height: calc(120vh - 74px);
+  min-height: calc(100vh - 80px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: var(--space-3xl);
-  padding-bottom: var(--space-4xl);
+  padding-top: clamp(2.5rem, 5vw, 4.5rem);
+  padding-bottom: clamp(3rem, 6vw, 5rem);
   overflow: hidden;
   background-color: transparent;
   z-index: 2;
 }
 
-.hero-glow-blob {
-  position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(650px, 90vw);
-  height: 400px;
-  background: radial-gradient(circle, var(--brand-purple-glow, rgba(139, 61, 255, 0.22)) 0%, transparent 70%);
-  filter: blur(70px);
-  pointer-events: none;
-  z-index: 0;
+.hero-container {
+  width: 100%;
+  max-width: var(--container-wide, 1380px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1.25rem, 4vw, 3.5rem);
+  padding-right: clamp(1.25rem, 4vw, 3.5rem);
 }
 
-.hero-content {
-  position: relative;
+/* Two-column layout: Left (~48%) for editorial copy, Right (~52%) for visual composition */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 48% 52%;
+  gap: clamp(2rem, 4.5vw, 4.5rem);
+  align-items: center;
+  width: 100%;
+}
+
+/* =============================================================================
+   LEFT COLUMN — EDITORIAL TYPOGRAPHY & CTAs
+   ============================================================================= */
+
+.hero-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
   z-index: 2;
-  text-align: center;
-  max-width: 920px;
-  margin: 0 auto;
-  animation: hero-fade-up 750ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: hero-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes hero-fade-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Badge pill */
-.hero-pill {
-  display: inline-flex;
+/* Main Editorial Headline */
+.hero-headline {
+  font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.75rem, 4.8vw, 4.65rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+  color: var(--color-text, #FFFFFF);
+  margin: 0;
+  max-width: 580px;
+}
+
+.hero-headline-br {
+  display: inline;
+}
+
+/* Signature Digitalonix Purple Accent */
+.hero-headline-accent {
+  display: inline;
+  color: var(--color-accent, #A364FF);
+  background: var(--gradient-headline-accent, linear-gradient(135deg, #C285FF 0%, #8B3DFF 75%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: inherit;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Supporting Editorial Paragraph */
+.hero-description {
+  font-family: 'DM Sans', var(--font-body, -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: clamp(1.05rem, 1.15vw, 1.15rem);
+  line-height: 1.68;
+  color: var(--color-text-secondary, #A5A5B0);
+  max-width: 510px;
+  margin: clamp(1.25rem, 2.5vw, 1.85rem) 0 clamp(1.75rem, 3vw, 2.5rem) 0;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+/* CTA Button Group */
+.hero-cta-group {
+  display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: 0.4rem 1.1rem;
-  background: var(--color-card-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  margin-bottom: var(--space-xl);
-  font-family: var(--font-mono, var(--font-body));
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.hero-pill-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #22c55e;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
-}
-
-.hero-pill-accent {
-  color: var(--color-accent);
+.hero-btn-primary {
+  padding: 0.95rem 1.85rem;
+  font-family: 'DM Sans', var(--font-body, sans-serif);
+  font-size: 0.95rem;
   font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 4px 18px var(--brand-purple-glow, rgba(139, 61, 255, 0.25));
+  transition: transform var(--transition-fast, 180ms ease), box-shadow var(--transition-fast, 180ms ease);
 }
 
-/* Headline with fixed height container to avoid CLS */
-.hero-headline-wrapper {
+.hero-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px var(--brand-purple-glow, rgba(139, 61, 255, 0.35));
+}
+
+.hero-btn-secondary {
+  padding: 0.95rem 1.65rem;
+  font-family: 'DM Sans', var(--font-body, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border-radius: var(--radius-md, 12px);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--color-text, #FFFFFF);
+  transition: background var(--transition-fast, 180ms ease), border-color var(--transition-fast, 180ms ease), transform var(--transition-fast, 180ms ease);
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(163, 100, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* =============================================================================
+   RIGHT COLUMN — VISUAL MEDIA STAGE (3 OVERLAPPING FRAMES)
+   ============================================================================= */
+
+.hero-media-col {
   position: relative;
-  min-height: clamp(6.2rem, 15vw, 11.5rem);
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--space-xl);
-  text-align: center;
+  z-index: 2;
+  animation: hero-fade-up 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.hero-headline {
-  font-family: var(--font-heading);
-  font-size: clamp(2.35rem, 6.2vw, 4.65rem);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.15;
-  color: var(--color-text);
-  margin: 0;
+.hero-media-stage {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  height: 510px;
+}
+
+/* Restrained ambient backlight behind the media cluster */
+.hero-stage-ambient {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  height: 85%;
+  background: radial-gradient(circle, rgba(139, 61, 255, 0.12) 0%, rgba(13, 13, 15, 0) 70%);
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Common Frame Foundations */
+.hero-frame {
+  position: absolute;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 320ms ease;
+  user-select: none;
+}
+
+/* Future Media Drop-In Styles: When an <img> or <video> is inserted into any frame */
+.hero-media-asset {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  z-index: 2;
+  display: block;
+}
+
+/* -----------------------------------------------------------------------------
+   FRAME 01 — CENTRAL PRIMARY FRAME (Anchor / Showreel)
+   ----------------------------------------------------------------------------- */
+.hero-frame-center {
+  top: 10%;
+  left: 17%;
+  width: 69%;
+  height: 73%;
+  z-index: 2;
+  border-radius: 18px;
+  background: linear-gradient(150deg, #13141F 0%, #0C0D13 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 24px 52px -12px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.hero-frame-center:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 32px 64px -12px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(163, 100, 255, 0.3);
+}
+
+/* -----------------------------------------------------------------------------
+   FRAME 02 — SECONDARY LEFT FRAME (Upper-Left Overlap / Campaign)
+   ----------------------------------------------------------------------------- */
+.hero-frame-left {
+  top: 0;
+  left: 0;
+  width: 46%;
+  height: 58%;
+  z-index: 1;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #0F1017 0%, #08090E 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 18px 40px -10px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.hero-frame-left:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* -----------------------------------------------------------------------------
+   FRAME 03 — SECONDARY RIGHT FRAME (Lower-Right Foreground Overlap / Editorial)
+   ----------------------------------------------------------------------------- */
+.hero-frame-right {
+  bottom: 0;
+  right: 0;
+  width: 44%;
+  height: 60%;
+  z-index: 3;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #161725 0%, #0E0F18 100%);
+  border: 1px solid rgba(163, 100, 255, 0.22);
+  box-shadow:
+    0 28px 58px -12px rgba(0, 0, 0, 0.85),
+    0 0 24px -8px rgba(139, 61, 255, 0.2),
+    0 0 0 1px rgba(163, 100, 255, 0.12);
+}
+
+.hero-frame-right:hover {
+  transform: translateY(-4px);
+  border-color: rgba(163, 100, 255, 0.45);
+  box-shadow:
+    0 34px 68px -12px rgba(0, 0, 0, 0.9),
+    0 0 32px -6px rgba(139, 61, 255, 0.35);
+}
+
+/* =============================================================================
+   ELEGANT EMPTY PLACEHOLDER DETAILS (Architectural Wireframe Finish)
+   ============================================================================= */
+
+.hero-frame-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-frame-placeholder-primary {
+  padding: 1.35rem;
+  background: radial-gradient(circle at 50% 45%, rgba(139, 61, 255, 0.04) 0%, transparent 65%);
+}
+
+/* Corner Precision Registration Marks (+) */
+.hero-frame-corner {
+  position: absolute;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.16);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.hero-frame-corner.top-left {
+  top: 9px;
+  left: 9px;
+}
+.hero-frame-corner.top-right {
+  top: 9px;
+  right: 9px;
+}
+.hero-frame-corner.bottom-left {
+  bottom: 9px;
+  left: 9px;
+}
+.hero-frame-corner.bottom-right {
+  bottom: 9px;
+  right: 9px;
+}
+
+/* Frame Header */
+.hero-frame-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hero-frame-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hero-frame-tag-primary {
+  color: #D8B4FE;
+  background: rgba(139, 61, 255, 0.12);
+  border-color: rgba(163, 100, 255, 0.25);
+}
+
+.hero-frame-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #A855F7;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.8);
+}
+
+.hero-frame-icon {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.hero-frame-icon-primary {
+  color: rgba(163, 100, 255, 0.6);
+}
+
+/* Frame Body Visual Center */
+.hero-frame-body {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin: auto 0;
 }
 
-.hero-static-prefix {
-  display: block;
-  color: var(--color-text);
-  font-family: var(--font-heading);
-  line-height: 1.15;
-  margin-bottom: 0.12em;
-}
-
-.hero-dynamic-slot {
-  display: block;
+/* Minimalist Center Aperture Glyph */
+.hero-frame-aperture {
   position: relative;
-  font-family: var(--font-heading);
-  line-height: 1.15;
-  min-height: 1.25em;
-}
-
-.hero-dynamic-phrase {
-  display: inline-block;
-  white-space: nowrap;
-  will-change: transform, opacity;
-  font-family: var(--font-heading);
-}
-
-.hero-headline-accent {
-  background: var(--gradient-headline-accent);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-  font-family: var(--font-heading);
-}
-
-/* Fallback for noscript */
-.noscript-headline {
-  display: none;
-}
-
-noscript .noscript-headline {
-  display: block;
-}
-
-.hero-description {
-  font-family: var(--font-body);
-  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
-  color: var(--color-text-secondary);
-  max-width: 680px;
-  margin: 0 auto var(--space-2xl) auto;
-  line-height: var(--leading-relaxed);
-}
-
-.hero-cta-group {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px dashed rgba(163, 100, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-md);
-  flex-wrap: wrap;
 }
 
-@media (max-width: 640px) {
-  .hero-section {
-    padding-top: var(--space-2xl);
-    padding-bottom: var(--space-2xl);
-    min-height: 100vh;
+.hero-frame-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.hero-frame-cross-h {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(163, 100, 255, 0.35), transparent);
+}
+
+.hero-frame-cross-v {
+  position: absolute;
+  height: 100%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(163, 100, 255, 0.35), transparent);
+}
+
+.hero-frame-prompt {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Minimal Wireframe Line & Badge for Secondary Frames */
+.hero-frame-wireframe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.hero-wireframe-lines {
+  width: 38px;
+  height: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.hero-wireframe-badge {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(163, 100, 255, 0.7);
+  background: rgba(139, 61, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(163, 100, 255, 0.15);
+}
+
+/* Frame Footer */
+.hero-frame-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.hero-frame-spec {
+  font-family: 'DM Sans', var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.28);
+  text-transform: uppercase;
+}
+
+/* =============================================================================
+   RESPONSIVE DESIGN SYSTEM
+   ============================================================================= */
+
+/* Laptop / Medium Desktops (1024px to 1320px) */
+@media (max-width: 1320px) {
+  .hero-headline {
+    font-size: clamp(2.5rem, 4.2vw, 3.8rem);
   }
 
-  .hero-headline-wrapper {
-    min-height: clamp(6rem, 20vw, 9rem);
+  .hero-media-stage {
+    max-width: 520px;
+    height: 460px;
+  }
+}
+
+/* Tablet / Landscape Screens (769px to 1023px) */
+@media (max-width: 1023px) {
+  .hero-grid {
+    grid-template-columns: 50% 50%;
+    gap: 2rem;
   }
 
   .hero-headline {
-    font-size: clamp(2.2rem, 10vw, 4rem);
-    line-height: 1;
+    font-size: clamp(2.2rem, 3.8vw, 3.2rem);
   }
 
-  /* Mobile CTA Design */
+  .hero-description {
+    font-size: 1rem;
+    margin: 1.25rem 0 1.75rem 0;
+  }
+
+  .hero-media-stage {
+    max-width: 440px;
+    height: 400px;
+  }
+}
+
+/* Mobile Screens (< 768px): Stacked Vertically, Zero Horizontal Overflow */
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: auto;
+    padding-top: clamp(2rem, 6vw, 3rem);
+    padding-bottom: clamp(3rem, 8vw, 4.5rem);
+  }
+
+  .hero-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(2.25rem, 6vw, 3.25rem);
+  }
+
+  .hero-text-col {
+    align-items: flex-start;
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .hero-headline {
+    font-size: clamp(2.35rem, 8.5vw, 3.25rem);
+    line-height: 1.1;
+    max-width: 100%;
+  }
+
+  .hero-description {
+    font-size: 15px;
+    line-height: 1.62;
+    margin: 1.15rem 0 1.75rem 0;
+    max-width: 100%;
+  }
+
   .hero-cta-group {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
+    align-items: stretch;
+    gap: 12px;
   }
 
-  /* Primary CTA */
-  .hero-cta-group .btn-primary {
+  .hero-btn-primary {
     width: 100%;
-    max-width: 360px;
-    min-height: 54px;
-    border-radius: 14px;
+    justify-content: center;
+    padding: 0.95rem 1.5rem;
     font-size: 15px;
-    justify-content: center;
   }
 
-  /* Secondary CTA - Minimal Text Link */
-  .hero-cta-group .btn-secondary {
-    width: auto;
-    min-height: 44px;
-    padding: 8px 16px;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    color: #C49AFF;
+  .hero-btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 0.85rem 1.5rem;
     font-size: 14px;
-    font-weight: 600;
-    justify-content: center;
-    gap: 7px;
-  }
-
-  /* Subtle interaction */
-  .hero-cta-group .btn-secondary:hover {
     background: transparent;
-    box-shadow: none;
-    transform: translateX(3px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .hero-meta-strip {
-    gap: var(--space-md);
-    flex-direction: column;
+  /* Media Composition on Mobile */
+  .hero-media-col {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .hero-media-stage {
+    max-width: 100%;
+    width: 100%;
+    height: clamp(300px, 85vw, 380px);
+  }
+
+  .hero-frame-center {
+    top: 8%;
+    left: 14%;
+    width: 72%;
+    height: 74%;
+    border-radius: 14px;
+  }
+
+  .hero-frame-left {
+    width: 48%;
+    height: 58%;
+    border-radius: 12px;
+  }
+
+  .hero-frame-right {
+    width: 48%;
+    height: 60%;
+    border-radius: 12px;
+  }
+
+  .hero-frame-placeholder {
+    padding: 0.85rem;
+  }
+
+  .hero-frame-placeholder-primary {
+    padding: 1rem;
+  }
+
+  .hero-frame-prompt {
+    font-size: 9.5px;
+  }
+
+  .hero-frame-spec {
+    font-size: 8px;
+  }
+}
+
+/* Extra Small Phones (< 400px) */
+@media (max-width: 400px) {
+  .hero-headline {
+    font-size: 2.15rem;
+  }
+
+  .hero-media-stage {
+    height: 290px;
   }
 }
