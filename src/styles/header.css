@@ -9,7 +9,7 @@
   width: 100%;
   z-index: 1000;
 
-  padding: 14px 0;
+  padding: 20px 0;
 
   background: transparent;
   border-bottom: 1px solid transparent;
@@ -30,7 +30,7 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 
-  padding: 9px 0;
+  padding: 5px 0;
 }
 
 /* =========================================
@@ -64,8 +64,8 @@
 }
 
 .dx-brand-logo {
-  width: 90px;
-  height: 90px;
+  width: 80px;
+  height: 80px;
 
   object-fit: contain;
   display: block;
