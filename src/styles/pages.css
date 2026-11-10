@@ -141,3 +141,87 @@
   max-width: 580px;
   margin: 0 auto var(--space-xl) auto;
 }
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS FOR INNER PAGES (SERVICES, ABOUT, PORTFOLIO)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .page-hero {
+    padding-top: clamp(96px, 18vw, 125px);
+    padding-bottom: clamp(2.25rem, 5vw, 3.25rem);
+  }
+
+  .page-hero-title {
+    font-size: clamp(1.85rem, 6.5vw, 2.75rem);
+    line-height: 1.18;
+  }
+
+  .page-hero-desc {
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    padding-inline: 4px;
+  }
+
+  .process-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .process-step-card {
+    padding: 1.25rem 1.15rem;
+    border-radius: 14px;
+  }
+
+  .process-step-number {
+    font-size: 1.65rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .process-step-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .process-step-desc {
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  .values-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .value-card {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+
+  .cta-banner {
+    padding: 32px 18px;
+    margin: 36px 0;
+    border-radius: 16px;
+  }
+
+  .cta-banner-title {
+    font-size: clamp(1.4rem, 5vw, 1.85rem);
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+
+  .cta-banner-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
+  .cta-banner .btn-primary {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+}

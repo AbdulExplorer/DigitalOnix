@@ -104,17 +104,17 @@ export function ServicesPageContent() {
       </section>
 
       {/* Categories Detailed Sections */}
-      <section className="section-padding">
+      <section className="section-padding services-section-wrapper">
         <div className="container">
           {serviceCategories.map((catName) => {
             const catServices = activeServices.filter((s) => s.category === catName);
             if (catServices.length === 0) return null;
 
             return (
-              <div key={catName} style={{ marginBottom: "var(--space-4xl)" }}>
-                <div className="reveal-on-scroll" style={{ marginBottom: "var(--space-xl)" }}>
+              <div key={catName} className="services-category-block">
+                <div className="reveal-on-scroll services-category-header">
                   <span className="section-tag">{catName}</span>
-                  <h2 style={{ fontSize: "2rem", color: "var(--color-text)", marginTop: "0.25rem" }}>
+                  <h2 className="services-category-title">
                     {catName === "Marketing & Growth" && "Accelerate Market Reach & Revenue Funnels"}
                     {catName === "Creative Production" && "High-Retention Visual Storytelling & PR"}
                     {catName === "Technology" && "Modern Web, Software & AI Automation"}

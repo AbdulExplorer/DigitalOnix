@@ -187,6 +187,12 @@ button {
 }
 
 @media (max-width: 768px) {
+  .container,
+  .container-wide {
+    padding-left: clamp(14px, 4vw, 20px);
+    padding-right: clamp(14px, 4vw, 20px);
+  }
+
   .section-padding {
     padding-top: var(--space-2xl);
     padding-bottom: var(--space-2xl);

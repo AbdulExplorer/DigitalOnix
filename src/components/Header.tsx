@@ -448,7 +448,7 @@ export function Header() {
             href="/#quote"
             className="dx-desktop-cta"
           >
-            <span>Get a Quote</span>
+            <span>Contact Us</span>
             <ArrowUpRight size={17} />
           </Link>
 
