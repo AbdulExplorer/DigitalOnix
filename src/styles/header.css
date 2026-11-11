@@ -83,10 +83,16 @@
   text-transform: uppercase;
 
   white-space: nowrap;
+
 }
 
 .dx-brand-name span {
-  color: #a78bfa;
+  color: #865eff;
+  background: var(--gradient-headline-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  display: inline-block;
 }
 
 /* =========================================

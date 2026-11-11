@@ -411,8 +411,8 @@ export function Header() {
           >
             <Image
               // src="/logo.png"
-              // src="/logo2.png"
-              src="/logo3.png"
+              src="/logo2.png"
+              // src="/logo3.png"
               alt="Digitalonix"
               width={64}
               height={64}
