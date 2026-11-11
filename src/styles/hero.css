@@ -464,7 +464,7 @@ noscript .noscript-headline {
   .hero-section {
     min-height: auto;
 
-    padding-top: clamp(88px, 20vw, 110px);
+    padding-top: clamp(88px, 40vw, 120px);
     padding-bottom: clamp(35px, 7vw, 55px);
 
     overflow: hidden;
@@ -479,6 +479,7 @@ noscript .noscript-headline {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+
   }
 
 

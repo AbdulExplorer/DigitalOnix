@@ -1,166 +1,230 @@
+
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { siteConfig } from "@/data/config";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+
 import { useAdminData } from "@/context/AdminDataContext";
-import { MapPin, FolderCheck, Users, Banknote } from "lucide-react";
+
+type StatId = "projects" | "clients" | "adspend";
+
+type Metric = {
+  prefix: string;
+  value: number;
+  suffix: string;
+};
+
+function parseMetric(input: unknown, fallback: string): Metric {
+  const raw = String(input ?? fallback).trim() || fallback;
+  const match = raw.match(/^([^\d]*)([\d,]+)(.*)$/);
+
+  if (!match) {
+    return { prefix: "", value: 0, suffix: "" };
+  }
+
+  return {
+    prefix: match[1].trim(),
+    value: Number(match[2].replace(/,/g, "")) || 0,
+    suffix: match[3].trim(),
+  };
+}
+
+const formatNumber = (value: number) =>
+  new Intl.NumberFormat("en-IN").format(value);
 
 export function Statistics() {
   const { content } = useAdminData();
   const statsData = content.stats;
 
-  const projectsStr = statsData?.projectsDelivered || "1000+";
-  const clientsStr = statsData?.clientsServed || "250+";
-  const metaAdSpendStr = statsData?.metaAdSpend || "₹10Lakh+";
+  const projects = parseMetric(
+    statsData?.projectsDelivered,
+    "1000+"
+  );
 
-  const targetProjects = parseInt(projectsStr.replace(/[^0-9]/g, "") || "1000", 10);
-  const targetClients = parseInt(clientsStr.replace(/[^0-9]/g, "") || "250", 10);
-  const targetAdSpend = parseInt(metaAdSpendStr.replace(/[^0-9]/g, "") || "10", 10);
+  const clients = parseMetric(
+    statsData?.clientsServed,
+    "250+"
+  );
 
-  const projectsSuffix = projectsStr.replace(/[0-9]/g, "") || "+";
-  const clientsSuffix = clientsStr.replace(/[0-9]/g, "") || "+";
-  const adSpendPrefix = metaAdSpendStr.includes("₹") ? "₹" : "";
-  const adSpendSuffix = metaAdSpendStr.replace(/[^a-zA-Z+]/g, "") || "Lakh+";
+  const adSpend = parseMetric(
+    statsData?.metaAdSpend,
+    "₹10 Lakh+"
+  );
 
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const [displayCounts, setDisplayCounts] = useState<{ [key: string]: number }>({
-    projects: 0,
-    clients: 0,
-    adspend: 0,
+  const targets: Record<StatId, number> = {
+    projects: projects.value,
+    clients: clients.value,
+    adspend: adSpend.value,
+  };
+
+  const [started, setStarted] = useState(false);
+
+  const [displayCounts, setDisplayCounts] = useState<
+    Record<StatId, number>
+  >({
+    projects: projects.value,
+    clients: clients.value,
+    adspend: adSpend.value,
   });
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const startedRef = useRef(false);
+  const frameRef = useRef<number | null>(null);
+
   const startCounters = useCallback(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setDisplayCounts({
-        projects: targetProjects,
-        clients: targetClients,
-        adspend: targetAdSpend,
-      });
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setDisplayCounts(targets);
       return;
     }
 
-    const duration = 1800;
+    const duration = 1600;
     const startTime = performance.now();
 
-    const targets = {
-      projects: targetProjects,
-      clients: targetClients,
-      adspend: targetAdSpend,
-    };
-
     const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const progress = Math.min(
+        (currentTime - startTime) / duration,
+        1
+      );
+
+      const eased = 1 - Math.pow(1 - progress, 3);
 
       setDisplayCounts({
-        projects: Math.floor(targets.projects * easeOut),
-        clients: Math.floor(targets.clients * easeOut),
-        adspend: Math.floor(targets.adspend * easeOut),
+        projects: Math.floor(targets.projects * eased),
+        clients: Math.floor(targets.clients * eased),
+        adspend: Math.floor(targets.adspend * eased),
       });
 
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        frameRef.current = requestAnimationFrame(animate);
       } else {
         setDisplayCounts(targets);
       }
     };
 
-    requestAnimationFrame(animate);
-  }, [targetProjects, targetClients, targetAdSpend]);
+    frameRef.current = requestAnimationFrame(animate);
+  }, [
+    targets.projects,
+    targets.clients,
+    targets.adspend,
+  ]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          startCounters();
-        }
-      },
-      { threshold: 0.25 }
-    );
+    const section = sectionRef.current;
+    if (!section) return;
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    const start = () => {
+      if (startedRef.current) return;
+
+      startedRef.current = true;
+      setStarted(true);
+      startCounters();
+    };
+
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      startedRef.current = true;
+      setStarted(true);
+      setDisplayCounts(targets);
+      return;
     }
 
-    return () => observer.disconnect();
-  }, [hasAnimated, startCounters]);
+    if (!("IntersectionObserver" in window)) {
+      start();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          start();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(section);
+
+    return () => {
+      observer.disconnect();
+
+      if (frameRef.current !== null) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [startCounters]);
 
   const items = [
     {
-      id: "projects",
-      prefix: "",
-      value: targetProjects,
-      suffix: projectsSuffix,
+      id: "projects" as const,
+      metric: projects,
       label: "Projects Delivered",
-      icon: <FolderCheck size={22} />,
     },
     {
-      id: "clients",
-      prefix: "",
-      value: targetClients,
-      suffix: clientsSuffix,
+      id: "clients" as const,
+      metric: clients,
       label: "Clients Served",
-      icon: <Users size={22} />,
     },
     {
-      id: "adspend",
-      prefix: adSpendPrefix,
-      value: targetAdSpend,
-      suffix: adSpendSuffix,
+      id: "adspend" as const,
+      metric: adSpend,
       label: "Meta Ad Spend",
-      icon: <Banknote size={22} />,
     },
   ];
 
   return (
     <section
       ref={sectionRef}
-      className="stats-section section-padding"
-      aria-label="Company Introduction and Statistics"
+      className="stats-section"
+      aria-label="Digitalonix statistics"
     >
       <div className="container">
-        <div className="intro-stats-grid">
-          {/* Introduction Column */}
-          <div className="intro-text-column reveal-on-scroll">
-            <span className="intro-badge">
-              <MapPin size={13} />
-              {siteConfig.locationDisplay}
-            </span>
-            <h2 className="intro-heading">
-              Creative marketing crafted for brands that refuse to blend in.
-            </h2>
-            <p className="intro-paragraph">
-              Digitalonix is an integrated growth studio blending aesthetic storytelling with performance engineering. We partner with ambitious brands to capture attention and drive measurable business results.
-            </p>
-          </div>
 
-          {/* Statistics Column */}
-          <div className="stats-cards-wrapper">
-            {items.map((stat, idx) => (
-              <div
-                key={stat.id}
-                className={`stat-card reveal-on-scroll reveal-delay-${idx + 1}`}
-              >
-                <div className="stat-content">
-                  <div className="stat-number-wrapper">
-                    {stat.prefix && <span>{stat.prefix}</span>}
-                    <span>{hasAnimated ? displayCounts[stat.id] : stat.value}</span>
-                    <span className="stat-accent">{stat.suffix}</span>
-                  </div>
-                  <div className="stat-label">{stat.label}</div>
+        <div className="stats-horizontal">
+
+          {items.map((stat) => {
+            const currentValue = started
+              ? displayCounts[stat.id]
+              : stat.metric.value;
+
+            return (
+              <div className="horizontal-stat" key={stat.id}>
+
+                <div className="horizontal-stat-number">
+
+                  {stat.metric.prefix && (
+                    <span className="horizontal-stat-prefix">
+                      {stat.metric.prefix}
+                    </span>
+                  )}
+
+                  <span>
+                    {formatNumber(currentValue)}
+                  </span>
+
+                  <span className="horizontal-stat-accent">
+                    {stat.metric.suffix}
+                  </span>
+
                 </div>
 
-                <div className="stat-icon-emblem" aria-hidden="true">
-                  {stat.icon}
-                </div>
+                <span className="horizontal-stat-label">
+                  {stat.label}
+                </span>
+
               </div>
-            ))}
-          </div>
+            );
+          })}
+
         </div>
+
       </div>
     </section>
   );

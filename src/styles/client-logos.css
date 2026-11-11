@@ -1,208 +1,351 @@
-/* ==========================================================================
-   DIGITALONIX CLIENT LOGOS SECTION - HIGH PERFORMANCE & OPTICAL SIZING
-   ========================================================================== */
+/* =========================================
+   DIGITALONIX — CLIENT LOGO MARQUEE
+========================================= */
 
 .logos-section {
-  padding-top: var(--space-3xl);
-  padding-bottom: var(--space-3xl);
-  overflow: hidden;
   position: relative;
+  width: 100%;
+  padding: clamp(60px, 7vw, 90px) 0;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: transparent;
   z-index: 2;
 }
 
-.logos-heading-wrap {
-  text-align: center;
-  margin-bottom: var(--space-xl);
+/* Heading */
+
+.logos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 38px;
 }
 
-.logos-label {
-  font-family: var(--font-mono, var(--font-body));
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--color-text-muted);
+.logos-heading-content {
+  max-width: 650px;
+}
+
+.logos-eyebrow {
+  display: inline-block;
+  margin-bottom: 13px;
+  color: var(--color-accent);
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.18em;
 }
 
-/* Outer Marquee Container with smooth edge fades using hardware-accelerated overlays */
-.marquee-outer-container {
+.logos-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: clamp(26px, 3.2vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.045em;
+}
+
+.logos-title span {
+  color: var(--color-accent);
+}
+
+.logos-description {
+  margin: 12px 0 0;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Marquee viewport */
+
+.logos-marquee {
   position: relative;
   width: 100%;
   overflow: hidden;
-  padding: 0.5rem 0;
+  padding: 12px 0 18px;
 }
 
-.marquee-outer-container::before,
-.marquee-outer-container::after {
+/* Soft fade on both edges */
+
+.logos-marquee::before,
+.logos-marquee::after {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 90px;
-  z-index: 3;
+  width: clamp(35px, 8vw, 120px);
+  z-index: 2;
   pointer-events: none;
 }
 
-/* .marquee-outer-container::before {
+.logos-marquee::before {
   left: 0;
-  background: linear-gradient(to right, #08090C 0%, rgba(8, 9, 12, 0) 100%);
+  background: linear-gradient(to right,
+      var(--color-bg-secondary),
+      transparent);
 }
 
-.marquee-outer-container::after {
+.logos-marquee::after {
   right: 0;
-  background: linear-gradient(to left, #08090C 0%, rgba(8, 9, 12, 0) 100%);
-} */
+  background: linear-gradient(to left,
+      var(--color-bg-secondary),
+      transparent);
+}
 
-/* 60fps/120fps GPU-Accelerated Marquee Strip (No mask-image, zero lag) */
-.marquee-inner-strip {
+/* Continuous track */
+
+.logos-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: client-logo-marquee 65s linear infinite;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+/* Two identical groups must have identical widths */
+
+.logos-marquee-group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 18px;
+  padding-right: 18px;
+}
+
+/* Individual logo tile */
+
+.client-logo-card {
+  display: flex;
+  flex: 0 0 190px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 150px;
+  padding: 18px 16px 14px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.client-logo-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(139, 61, 255, 0.45);
+  background: rgba(139, 61, 255, 0.07);
+}
+
+/* Logo image area */
+
+.client-logo-image {
   display: flex;
   align-items: center;
-  gap: 3rem;
-  width: max-content;
-  animation: marquee-scroll 42s linear infinite;
-  padding: 0.5rem 0;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  perspective: 1000px;
+  justify-content: center;
+  width: 100%;
+  height: 95px;
+  padding: 6px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-.marquee-outer-container:hover .marquee-inner-strip {
+.client-logo-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 175px;
+  max-height: 82px;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.95;
+  user-select: none;
+  pointer-events: none;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.client-logo-card:hover .client-logo-image img {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+/* Fallback symbol */
+
+.client-logo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-accent);
+}
+
+.client-logo-fallback svg {
+  width: 44px;
+  height: 44px;
+}
+
+/* Client name */
+
+.client-logo-name {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.client-logo-card:hover .client-logo-name {
+  color: var(--color-text);
+}
+
+/* Pause while the user interacts */
+
+.logos-marquee:hover .logos-marquee-track,
+.logos-marquee:focus-within .logos-marquee-track {
   animation-play-state: paused;
 }
 
-/* Equalized Sizing Box for Each Client Logo */
-.logo-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 150px;
-  height: 100px;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  cursor: default;
-  flex-shrink: 0;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
+/* Seamless movement */
 
-.logo-badge:hover {
-  transform: translateY(-2px) scale(1.06);
-}
-
-/* Inner Bounding Box Ensuring Consistent Optical Weight */
-.logo-symbol {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 14px;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  color: #94A3B8;
-  transition: color 0.25s ease;
-}
-
-/* Authentic, Crisp Client Logos (Annoying filter removed, true brand colors & contrast) */
-.logo-symbol img {
-  /* max-width: 155px;
-  max-height: 68px; */
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  filter: none !important;
-  opacity: 0.95;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  display: block;
-  user-select: none;
-  pointer-events: none;
-}
-
-.logo-badge:hover .logo-symbol img {
-  opacity: 1;
-  filter: none !important;
-  transform: scale(1.04);
-}
-
-/* Vector Fallback Icons Sized to Match */
-.logo-symbol svg {
-  /* width: 48px;
-  height: 48px; */
-  display: block;
-  color: var(--color-primary, #8B3DFF);
-  opacity: 0.9;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.logo-badge:hover .logo-symbol svg {
-  opacity: 1;
-  transform: scale(1.08);
-}
-
-/* Self-contained 3D Transform Keyframes for Marquee Scroll */
-@keyframes marquee-scroll {
-  0% {
+@keyframes client-logo-marquee {
+  from {
     transform: translate3d(0, 0, 0);
   }
 
-  100% {
+  to {
     transform: translate3d(-50%, 0, 0);
   }
 }
 
-/* ==========================================================================
-   MOBILE & TABLET RESPONSIVE BREAKPOINTS
-   ========================================================================== */
+/* Tablet */
 
 @media (max-width: 768px) {
   .logos-section {
-    padding-top: var(--space-2xl);
-    padding-bottom: var(--space-2xl);
+    padding: 55px 0;
   }
 
-  .marquee-outer-container::before,
-  .marquee-outer-container::after {
-    width: 45px;
+  .logos-header {
+    margin-bottom: 25px;
   }
 
-  .marquee-inner-strip {
-    gap: 2rem;
-    animation-duration: 32s;
+  .logos-title {
+    font-size: clamp(25px, 5vw, 34px);
   }
 
-  /* Sized prominently for mobile screens with equal optical balance */
-  .logo-badge {
-    width: 120px;
-    height: 120px;
+  .logos-marquee-track {
+    animation-duration: 55s;
   }
 
-  .logo-symbol {
-    padding: 4px 10px;
+  .logos-marquee-group {
+    gap: 14px;
+    padding-right: 14px;
   }
 
-  .logo-symbol img {
-    max-width: 200px;
-    max-height: 100px;
+  .client-logo-card {
+    flex-basis: 165px;
+    min-height: 138px;
+    padding: 15px 13px 12px;
   }
 
-  .logo-symbol svg {
-    width: 200px;
-    height: 100px;
+  .client-logo-image {
+    height: 85px;
+  }
+
+  .client-logo-image img {
+    max-width: 155px;
+    max-height: 72px;
   }
 }
 
+/* Mobile */
+
+@media (max-width: 520px) {
+  .logos-section {
+    padding: 48px 0;
+  }
+
+  .logos-header {
+    margin-bottom: 20px;
+  }
+
+  .logos-eyebrow {
+    margin-bottom: 10px;
+    font-size: 10px;
+  }
+
+  .logos-title {
+    font-size: 27px;
+    line-height: 1.2;
+  }
+
+  .logos-description {
+    margin-top: 9px;
+    font-size: 13px;
+  }
+
+  .logos-marquee {
+    padding: 8px 0 14px;
+  }
+
+  .logos-marquee-track {
+    animation-duration: 48s;
+  }
+
+  .logos-marquee-group {
+    gap: 12px;
+    padding-right: 12px;
+  }
+
+  .client-logo-card {
+    flex-basis: 150px;
+    min-height: 128px;
+    padding: 13px 11px 10px;
+    border-radius: 12px;
+  }
+
+  .client-logo-image {
+    height: 78px;
+  }
+
+  .client-logo-image img {
+    max-width: 140px;
+    max-height: 68px;
+  }
+
+  .client-logo-name {
+    font-size: 10px;
+  }
+}
+
+/* Reduced motion accessibility */
+
 @media (prefers-reduced-motion: reduce) {
-  .marquee-inner-strip {
+  .logos-marquee-track {
     animation: none;
-    overflow-x: auto;
-    width: 100%;
-    justify-content: flex-start;
-    padding-bottom: 0.5rem;
+    transform: none;
+  }
+
+  .logos-marquee-group[aria-hidden="true"] {
+    display: none;
+  }
+
+  .client-logo-card,
+  .client-logo-image img,
+  .client-logo-name {
+    transition: none;
   }
 }
