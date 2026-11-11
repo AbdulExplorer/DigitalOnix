@@ -48,11 +48,16 @@ export function Testimonials() {
     if (!isMobile || totalItems <= 1 || isPaused || activeAudioId !== null) return;
 
     const interval = setInterval(() => {
+      // Pause currently playing video before transitioning slide on mobile
+      const currentItem = publishedTestimonials[currentIndex];
+      if (currentItem && videoRefs.current[currentItem.id]) {
+        videoRefs.current[currentItem.id]?.pause();
+      }
       setCurrentIndex((prev) => (prev + 1 >= totalItems ? 0 : prev + 1));
     }, 4500); // 4.5s delay between slides
 
     return () => clearInterval(interval);
-  }, [isMobile, totalItems, isPaused, activeAudioId]);
+  }, [isMobile, totalItems, isPaused, activeAudioId, currentIndex, publishedTestimonials]);
 
   // Ensure currentIndex stays within bounds if visibleCount changes
   useEffect(() => {
@@ -65,16 +70,62 @@ export function Testimonials() {
   const updateVideoPlayback = useCallback(() => {
     if (typeof window === "undefined") return;
 
+    const isMobileDevice = isMobile || window.innerWidth <= 768;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    if (isMobileDevice) {
+      // ON MOBILE: Strictly only ONE video can play at any time.
+      // 1. Immediately pause and mute all videos not at currentIndex
+      publishedTestimonials.forEach((item, index) => {
+        if (index !== currentIndex) {
+          const video = videoRefs.current[item.id];
+          if (video) {
+            if (!video.paused) {
+              video.pause();
+            }
+            video.muted = true;
+          }
+        }
+      });
+
+      // 2. Control playback of the single active video at currentIndex
+      const activeItem = publishedTestimonials[currentIndex];
+      if (activeItem) {
+        const activeVideo = videoRefs.current[activeItem.id];
+        if (activeVideo) {
+          const isIntersecting = !!intersectingMap.current[activeItem.id];
+          const shouldPlay = isIntersecting && !prefersReducedMotion;
+
+          if (shouldPlay) {
+            const shouldHaveAudio = activeAudioIdRef.current === activeItem.id;
+            if (activeVideo.muted !== !shouldHaveAudio) {
+              activeVideo.muted = !shouldHaveAudio;
+            }
+            if (activeVideo.paused) {
+              activeVideo.play().catch(() => {});
+            }
+          } else {
+            if (!activeVideo.paused) {
+              activeVideo.pause();
+            }
+            activeVideo.muted = true;
+            if (activeAudioIdRef.current === activeItem.id) {
+              activeAudioIdRef.current = null;
+              setActiveAudioId(null);
+            }
+          }
+        }
+      }
+      return;
+    }
+
+    // ON DESKTOP: Multiple visible cards can play simultaneously (muted), single active audio
     publishedTestimonials.forEach((item, index) => {
       const video = videoRefs.current[item.id];
       if (!video) return;
 
       const isIntersecting = !!intersectingMap.current[item.id];
-      const isVisibleInCarousel = isMobile
-        ? index === currentIndex
-        : index >= currentIndex && index < currentIndex + visibleCount;
+      const isVisibleInCarousel = index >= currentIndex && index < currentIndex + visibleCount;
 
       const shouldPlay = isIntersecting && isVisibleInCarousel && !prefersReducedMotion;
 
@@ -192,6 +243,8 @@ export function Testimonials() {
       activeAudioIdRef.current = id;
       setActiveAudioId(id);
 
+      const isMobileDevice = isMobile || (typeof window !== "undefined" && window.innerWidth <= 768);
+
       publishedTestimonials.forEach((item) => {
         const v = videoRefs.current[item.id];
         if (!v) return;
@@ -202,6 +255,9 @@ export function Testimonials() {
           }
         } else {
           v.muted = true;
+          if (isMobileDevice && !v.paused) {
+            v.pause();
+          }
         }
       });
     }
@@ -212,6 +268,8 @@ export function Testimonials() {
     const video = videoRefs.current[id];
     if (!video) return;
 
+    const isMobileDevice = isMobile || (typeof window !== "undefined" && window.innerWidth <= 768);
+
     if (!video.muted && video.volume > 0) {
       if (activeAudioIdRef.current !== id) {
         activeAudioIdRef.current = id;
@@ -220,7 +278,12 @@ export function Testimonials() {
         publishedTestimonials.forEach((item) => {
           if (item.id !== id) {
             const other = videoRefs.current[item.id];
-            if (other) other.muted = true;
+            if (other) {
+              other.muted = true;
+              if (isMobileDevice && !other.paused) {
+                other.pause();
+              }
+            }
           }
         });
       }
@@ -234,6 +297,10 @@ export function Testimonials() {
 
   const handlePrev = () => {
     if (isMobile) {
+      const currentItem = publishedTestimonials[currentIndex];
+      if (currentItem && videoRefs.current[currentItem.id]) {
+        videoRefs.current[currentItem.id]?.pause();
+      }
       setCurrentIndex((prev) => (prev === 0 ? totalItems - 1 : prev - 1));
     } else {
       setCurrentIndex((prev) => Math.max(0, prev - 1));
@@ -242,6 +309,10 @@ export function Testimonials() {
 
   const handleNext = () => {
     if (isMobile) {
+      const currentItem = publishedTestimonials[currentIndex];
+      if (currentItem && videoRefs.current[currentItem.id]) {
+        videoRefs.current[currentItem.id]?.pause();
+      }
       setCurrentIndex((prev) => (prev + 1 >= totalItems ? 0 : prev + 1));
     } else {
       setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
@@ -367,6 +438,28 @@ export function Testimonials() {
                     preload="metadata"
                     muted
                     className="testimonial-video-player"
+                    onPlay={() => {
+                      setIsPaused(true);
+                      const isMobileDevice = isMobile || (typeof window !== "undefined" && window.innerWidth <= 768);
+                      if (isMobileDevice) {
+                        // Strictly enforce: on mobile at one time only one video play
+                        publishedTestimonials.forEach((other) => {
+                          if (other.id !== item.id) {
+                            const otherVid = videoRefs.current[other.id];
+                            if (otherVid) {
+                              if (!otherVid.paused) {
+                                otherVid.pause();
+                              }
+                              otherVid.muted = true;
+                            }
+                          }
+                        });
+                        const itemIdx = publishedTestimonials.findIndex((t) => t.id === item.id);
+                        if (itemIdx !== -1 && itemIdx !== currentIndex) {
+                          setCurrentIndex(itemIdx);
+                        }
+                      }
+                    }}
                     onVolumeChange={() => handleNativeVolumeChange(item.id)}
                     onEnded={() => {
                       if (activeAudioIdRef.current === item.id) {
@@ -432,7 +525,15 @@ export function Testimonials() {
               <button
                 key={dotIdx}
                 className={`testimonials-dot ${currentIndex === dotIdx ? "is-active" : ""}`}
-                onClick={() => setCurrentIndex(dotIdx)}
+                onClick={() => {
+                  if (isMobile && currentIndex !== dotIdx) {
+                    const currentItem = publishedTestimonials[currentIndex];
+                    if (currentItem && videoRefs.current[currentItem.id]) {
+                      videoRefs.current[currentItem.id]?.pause();
+                    }
+                  }
+                  setCurrentIndex(dotIdx);
+                }}
                 aria-label={`Go to slide ${dotIdx + 1}`}
               />
             ))}
