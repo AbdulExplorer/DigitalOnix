@@ -377,10 +377,12 @@ export function Header() {
       closeButtonRef.current?.focus();
     });
 
+    const menuBtn = menuButtonRef.current;
+
     return () => {
       document.body.style.overflow = previousOverflow.current;
       window.removeEventListener("keydown", handleKeyDown);
-      menuButtonRef.current?.focus();
+      menuBtn?.focus();
     };
   }, [menuOpen]);
 
@@ -546,7 +548,7 @@ export function Header() {
           >
             <span>
               Get a Quote
-              <small>Let's discuss your next project</small>
+              <small>Let&apos;s discuss your next project</small>
             </span>
 
             <ArrowUpRight size={22} />

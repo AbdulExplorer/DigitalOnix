@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
 } from "react";
 
 import { useAdminData } from "@/context/AdminDataContext";
@@ -55,11 +56,14 @@ export function Statistics() {
     "₹10 Lakh+"
   );
 
-  const targets: Record<StatId, number> = {
-    projects: projects.value,
-    clients: clients.value,
-    adspend: adSpend.value,
-  };
+  const targets = useMemo<Record<StatId, number>>(
+    () => ({
+      projects: projects.value,
+      clients: clients.value,
+      adspend: adSpend.value,
+    }),
+    [projects.value, clients.value, adSpend.value]
+  );
 
   const [started, setStarted] = useState(false);
 
@@ -108,11 +112,7 @@ export function Statistics() {
     };
 
     frameRef.current = requestAnimationFrame(animate);
-  }, [
-    targets.projects,
-    targets.clients,
-    targets.adspend,
-  ]);
+  }, [targets]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -159,7 +159,7 @@ export function Statistics() {
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [startCounters]);
+  }, [startCounters, targets]);
 
   const items = [
     {
