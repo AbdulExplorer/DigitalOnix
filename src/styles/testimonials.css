@@ -121,7 +121,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 9 / 16;
-  max-height: 560px;
+  max-height: 350px;
   border-radius: 14px;
   overflow: hidden;
   background: #0B0E14;
@@ -313,4 +313,88 @@
   .testimonials-controls {
     align-self: flex-end;
   }
+}
+
+/* ==========================================================================
+   SMART TESTIMONIAL VIDEO CONTROLS & FULLSCREEN PRESERVATION
+   ========================================================================== */
+
+/* Dedicated Sound Toggle Overlay Button */
+.testimonial-sound-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(11, 14, 20, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  padding: 0;
+  outline: none;
+}
+
+.testimonial-sound-btn:hover {
+  background: var(--color-primary, #8B3DFF);
+  border-color: var(--color-primary, #8B3DFF);
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(139, 61, 255, 0.45);
+}
+
+.testimonial-sound-btn.is-unmuted {
+  background: var(--color-primary, #8B3DFF);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #FFFFFF;
+  box-shadow: 0 0 16px rgba(139, 61, 255, 0.6);
+}
+
+.testimonial-sound-btn:focus-visible {
+  outline: 2px solid var(--color-accent, #A364FF);
+  outline-offset: 2px;
+}
+
+/* Fullscreen Preservation of Video Format & Aspect Ratio */
+.testimonial-video-player:fullscreen {
+  object-fit: contain !important;
+  background-color: #000000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.testimonial-video-player:-webkit-full-screen {
+  object-fit: contain !important;
+  background-color: #000000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.testimonial-video-player:-moz-full-screen {
+  object-fit: contain !important;
+  background-color: #000000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.testimonial-video-player:-ms-fullscreen {
+  object-fit: contain !important;
+  background-color: #000000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* Hide overlay sound button during native fullscreen */
+.testimonial-video-area:fullscreen .testimonial-sound-btn,
+.testimonial-video-area:-webkit-full-screen .testimonial-sound-btn,
+.testimonial-video-player:fullscreen ~ .testimonial-sound-btn,
+.testimonial-video-player:-webkit-full-screen ~ .testimonial-sound-btn {
+  display: none !important;
 }
