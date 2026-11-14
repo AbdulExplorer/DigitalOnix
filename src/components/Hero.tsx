@@ -255,9 +255,14 @@ export function Hero() {
           {/* LEFT IMAGE */}
           <div className="hero-visual-card hero-visual-card--left">
             <div className="hero-visual-card-inner">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/1.webp"
-                alt=""
+                alt="Creative Production"
+                width={380}
+                height={500}
+                decoding="async"
+                fetchPriority="high"
               />
             </div>
           </div>
@@ -265,9 +270,14 @@ export function Hero() {
           {/* RIGHT IMAGE */}
           <div className="hero-visual-card hero-visual-card--right">
             <div className="hero-visual-card-inner">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/3.webp"
-                alt=""
+                alt="Digital Media"
+                width={380}
+                height={500}
+                decoding="async"
+                fetchPriority="high"
               />
             </div>
           </div>
@@ -275,9 +285,14 @@ export function Hero() {
           {/* CENTRE IMAGE — FRONT LAYER */}
           <div className="hero-visual-card hero-visual-card--main">
             <div className="hero-visual-card-inner">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/2.webp"
-                alt=""
+                alt="Brand Experience"
+                width={420}
+                height={560}
+                decoding="async"
+                fetchPriority="high"
               />
             </div>
           </div>

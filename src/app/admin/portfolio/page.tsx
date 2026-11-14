@@ -270,22 +270,15 @@ export default function AdminPortfolioPage() {
                             }}
                           >
                             {p.thumbnailUrl.match(/\.(mp4|webm|mov|m4v|ogg)($|\?)/i) || (p.mediaType === "video" && !p.thumbnailUrl.match(/\.(jpg|jpeg|png|webp|svg)($|\?)/i)) ? (
-                              <>
-                                <video
-                                  src={p.thumbnailUrl}
-                                  muted
-                                  playsInline
-                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
-                                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.35)" }}>
-                                  <Film size={14} style={{ color: "#FFF" }} />
-                                </div>
-                              </>
+                              <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(139, 61, 255, 0.25), rgba(11, 14, 20, 0.9))" }}>
+                                <Film size={18} style={{ color: "var(--adm-primary)" }} />
+                              </div>
                             ) : (
                               /* eslint-disable-next-line @next/next/no-img-element */
                               <img
                                 src={p.thumbnailUrl}
                                 alt={p.title}
+                                loading="lazy"
                                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                               />
                             )}

@@ -89,12 +89,16 @@ function LogoItem({
       <div className="client-logo-image">
         {client.logoUrl ? (
           <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={client.logoUrl}
               alt={duplicate ? "" : `${client.name} logo`}
+              width={44}
+              height={44}
               loading="lazy"
               decoding="async"
               draggable={false}
+              style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
               onError={(event) => {
                 event.currentTarget.style.display = "none";
 

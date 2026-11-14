@@ -98,26 +98,16 @@ export function Portfolio() {
               >
                 {/* Visual Container */}
                 <div className={`portfolio-visual-container aspect-${(item.aspectRatio || "16/9").replace("/", "-")}`}>
-                  {item.thumbnailUrl ? (
+                  {item.thumbnailUrl && !item.thumbnailUrl.match(/\.(mp4|webm|mov|m4v|ogg)($|\?)/i) ? (
                     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
-                      {item.thumbnailUrl.match(/\.(mp4|webm|mov|m4v|ogg)($|\?)/i) || (item.mediaType === "video" && !item.thumbnailUrl.match(/\.(jpg|jpeg|png|webp|svg)($|\?)/i)) ? (
-                        <video
-                          src={item.thumbnailUrl}
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
-                      ) : (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={item.thumbnailUrl}
-                          alt={item.title}
-                          loading="lazy"
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
-                      )}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.thumbnailUrl}
+                        alt={item.title}
+                        loading="lazy"
+                        decoding="async"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
                       {item.mediaType === "video" && (
                         <div className="portfolio-play-overlay">
                           <Play size={22} fill="currentColor" />

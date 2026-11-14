@@ -214,6 +214,9 @@ noscript .noscript-headline {
   min-width: 0;
 
   overflow: visible;
+
+  left: -5%;
+
 }
 
 
@@ -227,7 +230,7 @@ noscript .noscript-headline {
   width: 125%;
   height: 83%;
 
-  left: -6%;
+  left: -8%;
   top: 15%;
 
   border: 1.5px solid rgba(155, 99, 235, 0.65);

@@ -154,6 +154,7 @@ export function AdminImageUploader({
 }: AdminImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(currentImageUrl || null);
+  const [isPlayingVideoPreview, setIsPlayingVideoPreview] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState("");
@@ -178,10 +179,12 @@ export function AdminImageUploader({
 
   useEffect(() => {
     setPreview(currentImageUrl || null);
+    setIsPlayingVideoPreview(false);
   }, [currentImageUrl]);
 
   // Clean reset when removing or cancelling
   const resetVideoWorkflow = () => {
+    setIsPlayingVideoPreview(false);
     if (cancelCompressionRef.current) {
       cancelCompressionRef.current();
       cancelCompressionRef.current = null;
@@ -685,12 +688,60 @@ export function AdminImageUploader({
       {preview ? (
         <div className="adm-image-preview-box" style={{ position: "relative", backgroundColor: "#000000", minHeight: "140px" }}>
           {isVideoSource(preview) ? (
-            <video
-              src={preview}
-              controls
-              playsInline
-              style={{ maxHeight: "190px", maxWidth: "100%", objectFit: "contain", borderRadius: "var(--adm-radius-md)" }}
-            />
+            isPlayingVideoPreview ? (
+              <video
+                src={preview}
+                controls
+                autoPlay
+                playsInline
+                preload="auto"
+                style={{ maxHeight: "190px", maxWidth: "100%", objectFit: "contain", borderRadius: "var(--adm-radius-md)" }}
+              />
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "150px",
+                  padding: "1.25rem",
+                  cursor: "pointer",
+                  width: "100%",
+                  background: "linear-gradient(135deg, rgba(139, 61, 255, 0.15), rgba(11, 14, 20, 0.95))",
+                  borderRadius: "var(--adm-radius-md)",
+                }}
+                onClick={() => setIsPlayingVideoPreview(true)}
+                title="Click to preview video"
+              >
+                <button
+                  type="button"
+                  className="adm-btn adm-btn-primary"
+                  style={{
+                    borderRadius: "50%",
+                    width: "48px",
+                    height: "48px",
+                    padding: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: "0.6rem",
+                    boxShadow: "0 6px 20px rgba(139, 61, 255, 0.5)",
+                  }}
+                  tabIndex={-1}
+                >
+                  <Play size={20} fill="currentColor" style={{ marginLeft: "2px" }} />
+                </button>
+                <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#FFFFFF" }}>
+                  Video Ready • Click to Play Preview
+                </span>
+                {videoMetadata?.durationFormatted && (
+                  <span style={{ fontSize: "0.72rem", color: "var(--adm-text-secondary)", marginTop: "2px" }}>
+                    Duration: {videoMetadata.durationFormatted}
+                  </span>
+                )}
+              </div>
+            )
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={preview} alt="Upload preview" style={{ maxHeight: "140px", objectFit: "contain" }} />

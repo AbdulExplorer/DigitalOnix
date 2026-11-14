@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAdminData } from "@/context/AdminDataContext";
-import { ChevronLeft, ChevronRight, Star, Quote, Sparkles, Volume2, VolumeX } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Quote, Sparkles, Volume2, VolumeX, Play, Video } from "lucide-react";
+import testimonialPosters from "@/data/testimonial-posters.json";
 
 export function Testimonials() {
   const { testimonials } = useAdminData();
@@ -13,6 +14,7 @@ export function Testimonials() {
   const [isMobile, setIsMobile] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
+  const [activePlayingId, setActivePlayingId] = useState<string | null>(null);
 
   const touchStartXRef = useRef<number | null>(null);
   const videoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({});
@@ -20,6 +22,8 @@ export function Testimonials() {
   const intersectingMap = useRef<{ [key: string]: boolean }>({});
   const activeAudioIdRef = useRef<string | null>(null);
   activeAudioIdRef.current = activeAudioId;
+  const activePlayingIdRef = useRef<string | null>(null);
+  activePlayingIdRef.current = activePlayingId;
 
   // Responsive visible cards count
   useEffect(() => {
@@ -43,21 +47,43 @@ export function Testimonials() {
   const totalItems = publishedTestimonials.length;
   const maxIndex = isMobile ? Math.max(0, totalItems - 1) : Math.max(0, totalItems - visibleCount);
 
-  // Auto-advance carousel on mobile with delay (pauses if user unmuted audio)
+  // Stop playing video if carousel moves away from it
+  const stopActiveVideoIfHidden = useCallback((targetIndex: number) => {
+    const playingId = activePlayingIdRef.current;
+    if (!playingId) return;
+
+    const playingIndex = publishedTestimonials.findIndex((t) => t.id === playingId);
+    const isStillVisible = isMobile
+      ? playingIndex === targetIndex
+      : playingIndex >= targetIndex && playingIndex < targetIndex + visibleCount;
+
+    if (!isStillVisible) {
+      const vid = videoRefs.current[playingId];
+      if (vid) {
+        vid.pause();
+        vid.muted = true;
+      }
+      setActivePlayingId(null);
+      activePlayingIdRef.current = null;
+      setActiveAudioId(null);
+      activeAudioIdRef.current = null;
+    }
+  }, [publishedTestimonials, isMobile, visibleCount]);
+
+  // Auto-advance carousel on mobile with delay (pauses if user unmuted audio or watching video)
   useEffect(() => {
-    if (!isMobile || totalItems <= 1 || isPaused || activeAudioId !== null) return;
+    if (!isMobile || totalItems <= 1 || isPaused || activeAudioId !== null || activePlayingId !== null) return;
 
     const interval = setInterval(() => {
-      // Pause currently playing video before transitioning slide on mobile
-      const currentItem = publishedTestimonials[currentIndex];
-      if (currentItem && videoRefs.current[currentItem.id]) {
-        videoRefs.current[currentItem.id]?.pause();
-      }
-      setCurrentIndex((prev) => (prev + 1 >= totalItems ? 0 : prev + 1));
+      setCurrentIndex((prev) => {
+        const nextIdx = prev + 1 >= totalItems ? 0 : prev + 1;
+        stopActiveVideoIfHidden(nextIdx);
+        return nextIdx;
+      });
     }, 4500); // 4.5s delay between slides
 
     return () => clearInterval(interval);
-  }, [isMobile, totalItems, isPaused, activeAudioId, currentIndex, publishedTestimonials]);
+  }, [isMobile, totalItems, isPaused, activeAudioId, activePlayingId, stopActiveVideoIfHidden]);
 
   // Ensure currentIndex stays within bounds if visibleCount changes
   useEffect(() => {
@@ -66,98 +92,27 @@ export function Testimonials() {
     }
   }, [maxIndex, currentIndex]);
 
-  // Viewport & Carousel slice playback coordinator
+  // Viewport scroll playback coordinator: pause active video if scrolled out of view
   const updateVideoPlayback = useCallback(() => {
     if (typeof window === "undefined") return;
 
-    const isMobileDevice = isMobile || window.innerWidth <= 768;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const currentPlaying = activePlayingIdRef.current;
+    if (!currentPlaying) return;
 
-    if (isMobileDevice) {
-      // ON MOBILE: Strictly only ONE video can play at any time.
-      // 1. Immediately pause and mute all videos not at currentIndex
-      publishedTestimonials.forEach((item, index) => {
-        if (index !== currentIndex) {
-          const video = videoRefs.current[item.id];
-          if (video) {
-            if (!video.paused) {
-              video.pause();
-            }
-            video.muted = true;
-          }
-        }
-      });
+    const isIntersecting = !!intersectingMap.current[currentPlaying];
+    const playingIndex = publishedTestimonials.findIndex((t) => t.id === currentPlaying);
+    const isVisibleInCarousel = isMobile
+      ? playingIndex === currentIndex
+      : playingIndex >= currentIndex && playingIndex < currentIndex + visibleCount;
 
-      // 2. Control playback of the single active video at currentIndex
-      const activeItem = publishedTestimonials[currentIndex];
-      if (activeItem) {
-        const activeVideo = videoRefs.current[activeItem.id];
-        if (activeVideo) {
-          const isIntersecting = !!intersectingMap.current[activeItem.id];
-          const shouldPlay = isIntersecting && !prefersReducedMotion;
-
-          if (shouldPlay) {
-            const shouldHaveAudio = activeAudioIdRef.current === activeItem.id;
-            if (activeVideo.muted !== !shouldHaveAudio) {
-              activeVideo.muted = !shouldHaveAudio;
-            }
-            if (activeVideo.paused) {
-              activeVideo.play().catch(() => {});
-            }
-          } else {
-            if (!activeVideo.paused) {
-              activeVideo.pause();
-            }
-            activeVideo.muted = true;
-            if (activeAudioIdRef.current === activeItem.id) {
-              activeAudioIdRef.current = null;
-              setActiveAudioId(null);
-            }
-          }
-        }
-      }
-      return;
-    }
-
-    // ON DESKTOP: Multiple visible cards can play simultaneously (muted), single active audio
-    publishedTestimonials.forEach((item, index) => {
-      const video = videoRefs.current[item.id];
-      if (!video) return;
-
-      const isIntersecting = !!intersectingMap.current[item.id];
-      const isVisibleInCarousel = index >= currentIndex && index < currentIndex + visibleCount;
-
-      const shouldPlay = isIntersecting && isVisibleInCarousel && !prefersReducedMotion;
-
-      if (shouldPlay) {
-        // Enforce single-audio ownership rule
-        const shouldHaveAudio = activeAudioIdRef.current === item.id;
-        if (video.muted !== !shouldHaveAudio) {
-          video.muted = !shouldHaveAudio;
-        }
-
-        // Only trigger play if currently paused to avoid stuttering/restarting
-        if (video.paused) {
-          video.play().catch(() => {
-            // Autoplay rejection handled gracefully
-          });
-        }
-      } else {
-        // Video scrolled out of viewport or rotated out of active carousel slice: pause & mute
+    const video = videoRefs.current[currentPlaying];
+    if (video) {
+      if (!isIntersecting || !isVisibleInCarousel) {
         if (!video.paused) {
           video.pause();
         }
-        if (!video.muted) {
-          video.muted = true;
-        }
-
-        // Release audio ownership if this video leaves the viewport
-        if (activeAudioIdRef.current === item.id) {
-          activeAudioIdRef.current = null;
-          setActiveAudioId(null);
-        }
       }
-    });
+    }
   }, [publishedTestimonials, isMobile, currentIndex, visibleCount]);
 
   // Viewport IntersectionObserver (single observer for all testimonials)
@@ -228,38 +183,52 @@ export function Testimonials() {
     };
   }, [publishedTestimonials]);
 
+  // On-demand video start handler (Zero video bytes transferred until user clicks Play)
+  const handleStartPlayback = (id: string) => {
+    // If another video was playing, pause it
+    if (activePlayingIdRef.current && activePlayingIdRef.current !== id) {
+      const prevVid = videoRefs.current[activePlayingIdRef.current];
+      if (prevVid) {
+        prevVid.pause();
+        prevVid.muted = true;
+      }
+    }
+
+    setActivePlayingId(id);
+    activePlayingIdRef.current = id;
+    setIsPaused(true);
+
+    activeAudioIdRef.current = id;
+    setActiveAudioId(id);
+
+    if (isMobile) {
+      const itemIdx = publishedTestimonials.findIndex((t) => t.id === id);
+      if (itemIdx !== -1 && itemIdx !== currentIndex) {
+        setCurrentIndex(itemIdx);
+      }
+    }
+  };
+
   // Explicit Sound Toggle Handler (Single Active Audio Rule)
   const handleToggleSound = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
     if (activeAudioIdRef.current === id) {
-      // Toggle off
       const video = videoRefs.current[id];
       if (video) video.muted = true;
       activeAudioIdRef.current = null;
       setActiveAudioId(null);
     } else {
-      // Transfer audio ownership exclusively to this video
       activeAudioIdRef.current = id;
       setActiveAudioId(id);
 
-      const isMobileDevice = isMobile || (typeof window !== "undefined" && window.innerWidth <= 768);
-
-      publishedTestimonials.forEach((item) => {
-        const v = videoRefs.current[item.id];
-        if (!v) return;
-        if (item.id === id) {
-          v.muted = false;
-          if (v.paused) {
-            v.play().catch(() => {});
-          }
-        } else {
-          v.muted = true;
-          if (isMobileDevice && !v.paused) {
-            v.pause();
-          }
+      const video = videoRefs.current[id];
+      if (video) {
+        video.muted = false;
+        if (video.paused) {
+          video.play().catch(() => {});
         }
-      });
+      }
     }
   };
 
@@ -268,24 +237,10 @@ export function Testimonials() {
     const video = videoRefs.current[id];
     if (!video) return;
 
-    const isMobileDevice = isMobile || (typeof window !== "undefined" && window.innerWidth <= 768);
-
     if (!video.muted && video.volume > 0) {
       if (activeAudioIdRef.current !== id) {
         activeAudioIdRef.current = id;
         setActiveAudioId(id);
-
-        publishedTestimonials.forEach((item) => {
-          if (item.id !== id) {
-            const other = videoRefs.current[item.id];
-            if (other) {
-              other.muted = true;
-              if (isMobileDevice && !other.paused) {
-                other.pause();
-              }
-            }
-          }
-        });
       }
     } else if (video.muted || video.volume === 0) {
       if (activeAudioIdRef.current === id) {
@@ -296,27 +251,19 @@ export function Testimonials() {
   };
 
   const handlePrev = () => {
-    if (isMobile) {
-      const currentItem = publishedTestimonials[currentIndex];
-      if (currentItem && videoRefs.current[currentItem.id]) {
-        videoRefs.current[currentItem.id]?.pause();
-      }
-      setCurrentIndex((prev) => (prev === 0 ? totalItems - 1 : prev - 1));
-    } else {
-      setCurrentIndex((prev) => Math.max(0, prev - 1));
-    }
+    const nextIdx = isMobile
+      ? (currentIndex === 0 ? totalItems - 1 : currentIndex - 1)
+      : Math.max(0, currentIndex - 1);
+    stopActiveVideoIfHidden(nextIdx);
+    setCurrentIndex(nextIdx);
   };
 
   const handleNext = () => {
-    if (isMobile) {
-      const currentItem = publishedTestimonials[currentIndex];
-      if (currentItem && videoRefs.current[currentItem.id]) {
-        videoRefs.current[currentItem.id]?.pause();
-      }
-      setCurrentIndex((prev) => (prev + 1 >= totalItems ? 0 : prev + 1));
-    } else {
-      setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
-    }
+    const nextIdx = isMobile
+      ? (currentIndex + 1 >= totalItems ? 0 : currentIndex + 1)
+      : Math.min(maxIndex, currentIndex + 1);
+    stopActiveVideoIfHidden(nextIdx);
+    setCurrentIndex(nextIdx);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -412,78 +359,111 @@ export function Testimonials() {
               transform: totalItems > (isMobile ? 1 : visibleCount) ? `translateX(-${transformPercent}%)` : "none",
             }}
           >
-            {publishedTestimonials.map((item) => (
-              <article
-                key={item.id}
-                ref={(el) => {
-                  cardRefs.current[item.id] = el;
-                }}
-                data-testimonial-id={item.id}
-                className="modern-testimonial-card"
-                role="article"
-                aria-label={`Review by ${item.author}`}
-              >
-                {/* Video Area Above Card Content */}
-                <div className="testimonial-video-area">
-                  <video
-                    ref={(el) => {
-                      videoRefs.current[item.id] = el;
-                    }}
-                    src={
-                      item.videoUrl ||
-                      "https://wlysuqlciiekbqhrmjhy.supabase.co/storage/v1/object/public/assets/testimonials/1794079229796-0f950p.MP4"
-                    }
-                    controls
-                    playsInline
-                    preload="metadata"
-                    muted
-                    className="testimonial-video-player"
-                    onPlay={() => {
-                      setIsPaused(true);
-                      const isMobileDevice = isMobile || (typeof window !== "undefined" && window.innerWidth <= 768);
-                      if (isMobileDevice) {
-                        // Strictly enforce: on mobile at one time only one video play
-                        publishedTestimonials.forEach((other) => {
-                          if (other.id !== item.id) {
-                            const otherVid = videoRefs.current[other.id];
-                            if (otherVid) {
-                              if (!otherVid.paused) {
-                                otherVid.pause();
-                              }
-                              otherVid.muted = true;
-                            }
-                          }
-                        });
-                        const itemIdx = publishedTestimonials.findIndex((t) => t.id === item.id);
-                        if (itemIdx !== -1 && itemIdx !== currentIndex) {
-                          setCurrentIndex(itemIdx);
-                        }
-                      }
-                    }}
-                    onVolumeChange={() => handleNativeVolumeChange(item.id)}
-                    onEnded={() => {
-                      if (activeAudioIdRef.current === item.id) {
-                        activeAudioIdRef.current = null;
-                        setActiveAudioId(null);
-                      }
-                    }}
-                  />
+            {publishedTestimonials.map((item) => {
+              const posterMapItem = (testimonialPosters as Record<string, { localUrl?: string; publicUrl?: string }>)[item.id];
+              const posterUrl = posterMapItem?.localUrl || posterMapItem?.publicUrl || "";
+              const isPlaying = activePlayingId === item.id;
 
-                  {/* Dedicated Sound Toggle Overlay Button */}
-                  <button
-                    type="button"
-                    className={`testimonial-sound-btn ${activeAudioId === item.id ? "is-unmuted" : "is-muted"}`}
-                    onClick={(e) => handleToggleSound(item.id, e)}
-                    aria-label={activeAudioId === item.id ? "Mute testimonial audio" : "Enable sound for testimonial video"}
-                    title={activeAudioId === item.id ? "Mute audio" : "Enable sound"}
-                  >
-                    {activeAudioId === item.id ? (
-                      <Volume2 size={16} />
+              return (
+                <article
+                  key={item.id}
+                  ref={(el) => {
+                    cardRefs.current[item.id] = el;
+                  }}
+                  data-testimonial-id={item.id}
+                  className="modern-testimonial-card"
+                  role="article"
+                  aria-label={`Review by ${item.author}`}
+                >
+                  {/* Video Area Above Card Content (On-Demand Video Loading) */}
+                  <div className="testimonial-video-area">
+                    {isPlaying ? (
+                      <>
+                        <video
+                          ref={(el) => {
+                            videoRefs.current[item.id] = el;
+                          }}
+                          src={
+                            item.videoUrl ||
+                            "https://wlysuqlciiekbqhrmjhy.supabase.co/storage/v1/object/public/assets/testimonials/1794079229796-0f950p.MP4"
+                          }
+                          controls
+                          autoPlay
+                          playsInline
+                          preload="auto"
+                          className="testimonial-video-player"
+                          onVolumeChange={() => handleNativeVolumeChange(item.id)}
+                          onEnded={() => {
+                            if (activeAudioIdRef.current === item.id) {
+                              activeAudioIdRef.current = null;
+                              setActiveAudioId(null);
+                            }
+                          }}
+                        />
+
+                        {/* Dedicated Sound Toggle Overlay Button */}
+                        <button
+                          type="button"
+                          className={`testimonial-sound-btn ${activeAudioId === item.id ? "is-unmuted" : "is-muted"}`}
+                          onClick={(e) => handleToggleSound(item.id, e)}
+                          aria-label={activeAudioId === item.id ? "Mute testimonial audio" : "Enable sound for testimonial video"}
+                          title={activeAudioId === item.id ? "Mute audio" : "Enable sound"}
+                        >
+                          {activeAudioId === item.id ? (
+                            <Volume2 size={16} />
+                          ) : (
+                            <VolumeX size={16} />
+                          )}
+                        </button>
+                      </>
                     ) : (
-                      <VolumeX size={16} />
+                      <div
+                        className="testimonial-poster-container"
+                        onClick={() => handleStartPlayback(item.id)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleStartPlayback(item.id);
+                          }
+                        }}
+                        aria-label={`Play video review by ${item.author}`}
+                      >
+                        {posterUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={posterUrl}
+                            alt={`Video review by ${item.author}`}
+                            className="testimonial-poster-img"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        ) : (
+                          <div className="testimonial-poster-fallback">
+                            <div className="testimonial-avatar-bubble" aria-hidden="true">
+                              {(item.author || "A").charAt(0).toUpperCase()}
+                            </div>
+                            <span>{item.author}</span>
+                          </div>
+                        )}
+
+                        <div className="testimonial-video-badge" aria-hidden="true">
+                          <Video size={12} />
+                          <span>Video Review</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="testimonial-play-btn"
+                          aria-label={`Play review by ${item.author}`}
+                          tabIndex={-1}
+                        >
+                          <Play size={24} fill="currentColor" />
+                        </button>
+                      </div>
                     )}
-                  </button>
-                </div>
+                  </div>
 
                 {/* Topbar: Stars + Quote Emblem */}
                 <div className="testimonial-card-topbar">
@@ -514,7 +494,8 @@ export function Testimonials() {
                   </div>
                 </div>
               </article>
-            ))}
+            );
+          })}
           </div>
         </div>
 

@@ -279,7 +279,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ArrowRight, ArrowUpRight, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Phone, X } from "lucide-react";
 
 import { siteConfig } from "@/data/config";
 
@@ -450,8 +450,11 @@ export function Header() {
             href="/#quote"
             className="dx-desktop-cta"
           >
-            <span>Contact Us</span>
-            <ArrowUpRight size={17} />
+            <span>Let&apos;s Talk</span>
+
+            <span className="dx-cta-icon">
+              <Phone size={17} strokeWidth={1.8} />
+            </span>
           </Link>
 
           {/* MOBILE HAMBURGER */}

@@ -87,7 +87,7 @@
 }
 
 .dx-brand-name span {
-  color: #865eff;
+  /* color: #865eff; */
   background: var(--gradient-headline-accent);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -154,43 +154,62 @@
    DESKTOP CTA
 ========================================= */
 
-.dx-desktop-cta {
-  min-height: 49px;
-  padding: 0 21px;
+/* DESKTOP CONTACT CTA */
 
+.dx-desktop-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
 
+  min-height: 44px;
+  padding: 0;
+
   color: #ffffff;
-  background: #7651db;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 5px;
-
-  font-size: 13px;
+  font-size: 19px;
   font-weight: 600;
-
   text-decoration: none;
   white-space: nowrap;
 
-  transition:
-    background 0.25s ease,
-    transform 0.25s ease;
+  transition: color 0.3s ease;
+}
+
+.dx-cta-icon {
+  width: 36px;
+  height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+
+  transition: all 0.3s ease;
+}
+
+.dx-cta-icon svg {
+  transition: transform 0.3s ease;
 }
 
 .dx-desktop-cta:hover {
-  background: #8a68eb;
-  transform: translateY(-2px);
+  color: #a78bfa;
 }
 
-.dx-desktop-cta svg {
-  transition: transform 0.25s ease;
+.dx-desktop-cta:hover .dx-cta-icon {
+  background: #7651db;
+  border-color: #7651db;
+  transform: rotate(20deg);
+
+
 }
 
-.dx-desktop-cta:hover svg {
-  transform: translate(3px, -3px);
+.dx-desktop-cta:hover .dx-cta-icon svg {
+  transform: rotate(10deg);
 }
 
 /* Hide mobile elements on desktop */
