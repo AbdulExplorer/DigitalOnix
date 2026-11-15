@@ -5,16 +5,35 @@ import React, { useState, useEffect } from "react";
 import { portfolioCategories, PortfolioCategory } from "@/data/portfolio";
 import { useAdminData } from "@/context/AdminDataContext";
 import { AdminProject } from "@/types/admin";
-import { Play, TrendingUp, Sparkles, X, BarChart3, Video, Palette, ExternalLink } from "lucide-react";
+import {
+  Play,
+  TrendingUp,
+  Sparkles,
+  X,
+  BarChart3,
+  Video,
+  Palette,
+  ExternalLink,
+  ChevronDown,
+  ZoomIn,
+} from "lucide-react";
 
 export function Portfolio() {
   const { projects } = useAdminData();
   const [activeCategory, setActiveCategory] = useState<PortfolioCategory>("Results");
   const [selectedModalItem, setSelectedModalItem] = useState<AdminProject | null>(null);
+  const [visibleCount, setVisibleCount] = useState<number>(6);
 
-  const displayedItems = projects.filter(
+  const categoryItems = projects.filter(
     (item) => item.status === "published" && item.category === activeCategory
   );
+
+  const displayedItems = categoryItems.slice(0, visibleCount);
+
+  const handleCategoryChange = (category: PortfolioCategory) => {
+    setActiveCategory(category);
+    setVisibleCount(6);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -56,7 +75,7 @@ export function Portfolio() {
             <button
               key={category}
               className={`portfolio-tab-btn ${activeCategory === category ? "active" : ""}`}
-              onClick={() => setActiveCategory(category)}
+              onClick={() => handleCategoryChange(category)}
               role="tab"
               aria-selected={activeCategory === category}
             >
@@ -165,6 +184,20 @@ export function Portfolio() {
             ))
           )}
         </div>
+
+        {/* Load More Button */}
+        {categoryItems.length > visibleCount && (
+          <div className="portfolio-load-more-wrap">
+            <button
+              className="btn btn-secondary portfolio-load-more-btn"
+              onClick={() => setVisibleCount((prev) => prev + 6)}
+              aria-label={`Load more ${activeCategory} projects`}
+            >
+              <span>Load More Case Studies</span>
+              <ChevronDown size={15} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Project Detail Modal */}
@@ -190,7 +223,7 @@ export function Portfolio() {
 
             {/* Media Showcase (Video Player or Cover Image) */}
             {selectedModalItem.thumbnailUrl && (
-              <div style={{ width: "100%", maxHeight: "360px", borderRadius: "10px", overflow: "hidden", marginBottom: "1.25rem", backgroundColor: "#000", border: "1px solid var(--border-light)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: "100%", maxHeight: "360px", borderRadius: "10px", overflow: "hidden", marginBottom: "1.25rem", backgroundColor: "#000", border: "1px solid var(--border-light)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                 {selectedModalItem.thumbnailUrl.match(/\.(mp4|webm|mov|m4v|ogg)($|\?)/i) || (selectedModalItem.mediaType === "video" && !selectedModalItem.thumbnailUrl.match(/\.(jpg|jpeg|png|webp|svg)($|\?)/i)) ? (
                   <video
                     src={selectedModalItem.thumbnailUrl}
@@ -200,12 +233,25 @@ export function Portfolio() {
                     style={{ width: "100%", maxHeight: "360px", objectFit: "contain" }}
                   />
                 ) : (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={selectedModalItem.thumbnailUrl}
-                    alt={selectedModalItem.title}
-                    style={{ width: "100%", maxHeight: "360px", objectFit: "cover" }}
-                  />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={selectedModalItem.thumbnailUrl}
+                      alt={selectedModalItem.title}
+                      style={{ width: "100%", maxHeight: "360px", objectFit: "cover" }}
+                    />
+                    <a
+                      href={selectedModalItem.thumbnailUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="portfolio-modal-zoom-btn"
+                      title="View full resolution image"
+                      aria-label="View full resolution image"
+                    >
+                      <ZoomIn size={14} />
+                      <span>Full View</span>
+                    </a>
+                  </>
                 )}
               </div>
             )}

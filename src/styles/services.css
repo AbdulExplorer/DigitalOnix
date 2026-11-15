@@ -32,9 +32,9 @@
   transition: all var(--transition-fast);
 }
 
-.category-tab-btn:focus,
-.category-tab-btn:active {
-  outline: none !important;
+.category-tab-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .category-tab-btn:hover {
@@ -175,7 +175,8 @@
   justify-content: space-between;
 }
 
-.service-inquire-link {
+.service-inquire-link,
+.service-cta-link {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -183,10 +184,24 @@
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-link-hover);
-  transition: gap var(--transition-fast);
+  text-decoration: none;
+  transition: gap var(--transition-fast), color var(--transition-fast);
 }
 
-.service-card:hover .service-inquire-link {
+.service-inquire-link:hover,
+.service-cta-link:hover {
+  color: var(--color-accent);
+}
+
+.service-inquire-link:focus-visible,
+.service-cta-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs, 4px);
+}
+
+.service-card:hover .service-inquire-link,
+.service-card:hover .service-cta-link {
   gap: 0.65rem;
 }
 

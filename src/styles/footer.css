@@ -153,6 +153,21 @@
   gap: var(--space-lg);
 }
 
+.footer-legal-links a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-legal-links a:hover {
+  color: var(--color-text);
+}
+
+.footer-legal-links a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 @media (max-width: 960px) {
   .footer-top-grid {
     grid-template-columns: 1fr 1fr;

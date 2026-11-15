@@ -10,7 +10,7 @@
 
   --color-text: #FFFFFF;
   --color-text-secondary: #A5A5B0;
-  --color-text-muted: #72707D;
+  --color-text-muted: #94A3B8;
 
   --color-primary: #8B3DFF;
   --color-secondary: #5B21B6;
@@ -111,9 +111,12 @@
   --leading-relaxed: 1.65;
 
   /* Border Radii */
+  --radius-xs: 4px;
   --radius-sm: 6px;
+  --radius-btn: 8px;
   --radius-md: 10px;
   --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   /* Transitions */

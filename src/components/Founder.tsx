@@ -34,7 +34,7 @@ export function Founder() {
             </span>
 
             <h2 className="founder-title">{founderData.name}</h2>
-            <div className="founder-role-text">{founderData.role}</div>
+            <p className="founder-role-text">{founderData.role}</p>
 
             <div className="founder-quote-box">
               <p className="founder-quote-text">

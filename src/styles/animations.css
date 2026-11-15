@@ -117,6 +117,19 @@
     transform: none !important;
     transition: none !important;
   }
+
+  .marquee-track {
+    animation: none !important;
+  }
+
+  .ambient-glow {
+    animation: none !important;
+  }
+
+  .headline-active,
+  .headline-exiting {
+    animation: none !important;
+  }
 }
 
 /* Fallback if JavaScript is disabled */

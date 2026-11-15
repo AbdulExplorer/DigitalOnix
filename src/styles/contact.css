@@ -122,8 +122,9 @@
 .form-select:focus,
 .form-textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
-  outline: none;
+  box-shadow: 0 0 0 3px rgba(139, 61, 255, 0.25);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .form-input::placeholder,

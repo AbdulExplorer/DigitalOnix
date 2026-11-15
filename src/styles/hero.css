@@ -114,9 +114,9 @@
 
   font-family: var(--font-heading);
 
-  line-height: 1.15;
+  line-height: 1.2;
 
-  margin-bottom: 0.12em;
+  margin-bottom: 0.22em;
 }
 
 .hero-dynamic-slot {
@@ -125,8 +125,8 @@
 
   font-family: var(--font-heading);
 
-  line-height: 1.15;
-  min-height: 1.25em;
+  line-height: 1.2;
+  min-height: 1.3em;
 
   text-align: left;
 }
@@ -686,12 +686,14 @@ noscript .noscript-headline {
 
 @media (prefers-reduced-motion: reduce) {
 
-  .hero-content {
-    animation: none;
+  .hero-content,
+  .hero-visual-orbit,
+  .hero-visual-card {
+    animation: none !important;
   }
 
   .hero-dynamic-phrase {
-    animation: none;
-    transition: none;
+    animation: none !important;
+    transition: none !important;
   }
 }
